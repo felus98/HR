@@ -19,3 +19,4 @@ dane \<- read.csv(file="HR.csv")
 # zassalem dane i jest GIT
 
 # to jeszcze czy moje widać
+tabela <- read.csv("HR.csv", header= TRUE, sep=",", dec=",")
