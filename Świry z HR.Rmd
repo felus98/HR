@@ -15,3 +15,5 @@ knitr::opts_chunk$set(cache = TRUE)
 
 dane \<- read.csv(file="HR.csv") 
 #dodałem nazwę pliku
+
+# zassalem dane i jest GIT
