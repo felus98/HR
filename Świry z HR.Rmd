@@ -1,0 +1,17 @@
+---
+title: "HR projekt Analiza danych"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::downcute:
+    self_contained: true
+    default_style: "light"
+    downcute_theme: "default"
+---
+
+```{r setup, include=FALSE}
+## Global options
+knitr::opts_chunk$set(cache = TRUE)
+```
+
+dane \<- read.csv(file="HR.csv") 
+#dodałem nazwę pliku
