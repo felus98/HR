@@ -36,6 +36,7 @@ names(tabela)[cols_with_na]
 
 install.packages("naniar")
 library(naniar)
+library(ggplot2)
 
 gg_miss_var(tabela) +
   labs(
