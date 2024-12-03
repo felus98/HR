@@ -19,4 +19,10 @@ dane \<- read.csv(file="HR.csv")
 # zassalem dane i jest GIT
 
 # to jeszcze czy moje widać
+
 tabela <- read.csv("HR.csv", header= TRUE, sep=",", dec=",")
+View(tabela)
+sum(is.na(tabela)) 
+install.packages("DataExplorer")
+library(DataExplorer)
+plot_missing(tabela)
