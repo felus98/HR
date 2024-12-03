@@ -34,10 +34,6 @@ cols_with_na <- which(colSums(is.na(tabela)) > 0)
 names(tabela)[cols_with_na]
 
 
-NAvalues <- tabela %>% group_by(Age)
-NAvalues
-
-
 install.packages("naniar")
 library(naniar)
 
