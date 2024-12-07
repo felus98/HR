@@ -44,3 +44,19 @@ gg_miss_var(tabela) +
     x = "Kolumny",
     y = "Liczba brakujących wartości"
   )
+ 
+# braki danych
+vis_miss(tabela)
+ 
+# podumowanie braków danych
+miss_var_summary(tabela)
+ 
+# wizualizacja braków danych
+gg_miss_upset(tabela)
+ 
+# Wykryj wzorce braków danych
+gg_miss_var(tabela)
+
+# wypełnienie braków danych
+
+
