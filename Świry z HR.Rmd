@@ -57,6 +57,9 @@ gg_miss_upset(tabela)
 # Wykryj wzorce braków danych
 gg_miss_var(tabela)
 
+# z wykresu wynika, że nie ma wzorca braku danych, są one niezależne
+# jest tylko kilka przypadków, gdzie brakuje więcej niż jednej zmiennej w wierszu, ale nie można tego uznać za regułę
+
 # wypełnienie braków danych
 
 
