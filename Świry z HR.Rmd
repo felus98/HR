@@ -13,22 +13,38 @@ output:
 knitr::opts_chunk$set(cache = TRUE)
 ```
 
+# Wczytanie danych z pliku CSV
 dane <- read.csv(file="HR.csv") 
+
+# Kolejne wczytanie danych z nagłówkami i specyficznymi separatorami
 tabela <- read.csv("HR.csv", header= TRUE, sep=",", dec=",")
+
+# Wyświetlenie danych
 View(tabela)
+
+# Sprawdzenie liczby brakujących wartości w całym zbiorze danych
 sum(is.na(tabela)) 
-install.packages("DataExplorer")
+
 library(DataExplorer)
+
+# Wizualizacja brakujących danych
 plot_missing(tabela)
 
+# Sprawdzenie kompletności wierszy
 complete.cases(tabela)
+
+# rows_with_na przechowuje indeksy wierszy, które zawierają brakujące wartości.
 rows_with_na <- which(!complete.cases(tabela))
+
+# Wyświetlenie wierszy z brakującymi wartościami
 tabela[rows_with_na, ]
+
+# Znalezienie kolumn z brakującymi wartościami
 cols_with_na <- which(colSums(is.na(tabela)) > 0)
+
+# Wyświetla nazwy kolumn, które zawierają brakujące dane
 names(tabela)[cols_with_na]
 
-
-install.packages("naniar")
 library(naniar)
 library(ggplot2)
 
