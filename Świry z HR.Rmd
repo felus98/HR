@@ -97,5 +97,7 @@ tabela$MonthlyIncome <- imputate_na(tabela, MonthlyIncome,
                                  no_attrs = TRUE, method = "median")
                                  
 View(tabela)
-miss_var_summary(tabela)                                
+miss_var_summary(tabela)       
+
+# proba mikrofonu
                                  
