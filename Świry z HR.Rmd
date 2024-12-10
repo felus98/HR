@@ -13,13 +13,7 @@ output:
 knitr::opts_chunk$set(cache = TRUE)
 ```
 
-dane \<- read.csv(file="HR.csv") 
-#dodałem nazwę pliku
-
-# zassalem dane i jest GIT
-
-# to jeszcze czy moje widać
-
+dane <- read.csv(file="HR.csv") 
 tabela <- read.csv("HR.csv", header= TRUE, sep=",", dec=",")
 View(tabela)
 sum(is.na(tabela)) 
