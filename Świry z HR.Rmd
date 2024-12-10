@@ -84,7 +84,7 @@ dane <- hotdeck(tabela)
 na.pattern(tabela) 
 #brakujące wzorce braków danych
 
-tabela$Age <- imputate_na(tabela, Age, Attrition, MonthlyIncome,
+tabela$Age <- imputate_na(tabela, Age,
                                  no_attrs = TRUE, method = "median")
 View(tabela)
                                  
@@ -92,5 +92,10 @@ View(tabela)
 #                                 no_attrs = TRUE, method = "median")
                                  
 miss_var_summary(tabela)
+
+tabela$MonthlyIncome <- imputate_na(tabela, MonthlyIncome,
+                                 no_attrs = TRUE, method = "median")
                                  
+View(tabela)
+miss_var_summary(tabela)                                
                                  
