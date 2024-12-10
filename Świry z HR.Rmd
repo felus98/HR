@@ -71,5 +71,26 @@ gg_miss_var(tabela)
 # jest tylko kilka przypadków, gdzie brakuje więcej niż jednej zmiennej w wierszu, ale nie można tego uznać za regułę
 
 # wypełnienie braków danych
+install.packages("VIM")
+install.packages("misty")
+install.packages("dlookr")
+install.packages("rstatix")
+library(VIM)
+library(misty)
+library(dlookr)
+library(rstatix)
+dane <- hotdeck(tabela)
 
+na.pattern(tabela) 
+#brakujące wzorce braków danych
 
+tabela$Age <- imputate_na(tabela, Age, Attrition, MonthlyIncome,
+                                 no_attrs = TRUE, method = "median")
+View(tabela)
+                                 
+# tabela$Attrition <- imputate_na(tabela, Age, Attrition, MonthlyIncome,
+#                                 no_attrs = TRUE, method = "median")
+                                 
+miss_var_summary(tabela)
+                                 
+                                 
