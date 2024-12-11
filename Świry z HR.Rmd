@@ -6,100 +6,142 @@ output:
     self_contained: true
     default_style: "light"
     downcute_theme: "default"
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
+
+# **Projekt HR**
+
+Poniższy projekt przedstawia analizę danych opartą na danych
+zawierających... Projekt zawiera weryfikację, wizualizację oraz
+wypełnianie braków danych. Celem projektu jest wykonanie analizy,
+opartej na przygotowanym zbiorze danych.
+
+### *Wczytanie bibliotek*
 
 ```{r setup, include=FALSE}
 ## Global options
 knitr::opts_chunk$set(cache = TRUE)
-```
-
-```{r setup, message=FALSE, warning=FALSE, include=FALSE}
-# **Wczytanie danych z pliku CSV**
-dane <- read.csv(file="HR.csv") 
-knitr::opts_chunk$set(cache = TRUE)
-```
-# Kolejne wczytanie danych z nagłówkami i specyficznymi separatorami
-tabela <- read.csv("HR.csv", header= TRUE, sep=",", dec=",")
-
-# Wyświetlenie danych
-View(tabela)
-
-# Sprawdzenie liczby brakujących wartości w całym zbiorze danych
-sum(is.na(tabela)) 
-
-library(DataExplorer)
-
-# Wizualizacja brakujących danych
-plot_missing(tabela)
-
-# Sprawdzenie kompletności wierszy
-complete.cases(tabela)
-
-# rows_with_na przechowuje indeksy wierszy, które zawierają brakujące wartości.
-rows_with_na <- which(!complete.cases(tabela))
-
-# Wyświetlenie wierszy z brakującymi wartościami
-tabela[rows_with_na, ]
-
-# Znalezienie kolumn z brakującymi wartościami
-cols_with_na <- which(colSums(is.na(tabela)) > 0)
-
-# Wyświetla nazwy kolumn, które zawierają brakujące dane
-names(tabela)[cols_with_na]
-
+options(scipen = 999, digits=6) 
+if(!require('DMwR')) install.packages("https://cran.r-project.org/src/contrib/Archive/DMwR/DMwR_0.4.1.tar.gz", repos=NULL, type="source", dependencies=TRUE)
 library(naniar)
 library(ggplot2)
-
-gg_miss_var(tabela) +
-  labs(
-    title = "Shadowmapa brakujących danych",
-    x = "Kolumny",
-    y = "Liczba brakujących wartości"
-  )
- 
-# braki danych
-vis_miss(tabela)
- 
-# podumowanie braków danych
-miss_var_summary(tabela)
- 
-# wizualizacja braków danych
-gg_miss_upset(tabela)
- 
-# Wykryj wzorce braków danych
-gg_miss_var(tabela)
-
-# z wykresu wynika, że nie ma wzorca braku danych, są one niezależne
-# jest tylko kilka przypadków, gdzie brakuje więcej niż jednej zmiennej w wierszu, ale nie można tego uznać za regułę
-
-# wypełnienie braków danych
-install.packages("VIM")
-install.packages("misty")
-install.packages("dlookr")
-install.packages("rstatix")
 library(VIM)
-library(misty)
-library(dlookr)
+library(misty) 
+library(dlookr) 
 library(rstatix)
+library(DataExplorer)
+```
+
+# **Wczytanie danych z pliku CSV**
+
+Pierwszym etapem projektu jest wczytanie zestawu danych, na którym
+będzie się obdywać analiza.
+
+```{r}
+dane <- read.csv(file="HR.csv") 
+```
+
+Kolejne wczytanie danych z nagłówkami i specyficznymi separatorami.
+
+```{r}
+tabela <- read.csv("HR.csv", header= TRUE, sep=",", dec=",")
+```
+
+Następnie należy wyświetlić dane z tabeli, aby wstępnie zweryfikować ich
+poprawność.
+
+```{r}
+View(tabela)
+```
+
+Sprawdzenie liczby brakujących wartości w całym zbiorze danych
+
+```{r echo=TRUE}
+sum(is.na(tabela))
+```
+
+Wizualizacja brakujących danych
+
+```{r echo=FALSE}
+plot_missing(tabela)
+```
+
+Sprawdzenie kompletności wierszy ? nie wiem co to
+
+```{r}
+complete.cases(tabela)
+```
+
+rows_with_na przechowuje indeksy wierszy, które zawierają brakujące
+wartości.
+
+rows_with_na \<- which(!complete.cases(tabela))
+
+Wyświetlenie wierszy z brakującymi wartościami
+
+tabela[rows_with_na, ]
+
+Znalezienie kolumn z brakującymi wartościami
+
+cols_with_na \<- which(colSums(is.na(tabela)) \> 0)
+
+Wyświetla nazwy kolumn, które zawierają brakujące dane
+
+names(tabela)[cols_with_na]
+
+Shadowmapa brakujących danych pokazuje, w których kolumnach znajdują się
+brakujące dane oraz podaje ich liczbę.
+
+```{r echo=TRUE}
+gg_miss_var(tabela) + labs( title = "Shadowmapa brakujących danych", x =
+"Kolumny", y = "Liczba brakujących wartości" )
+```
+
+Wykres pokazujący gdzie występują poszczególne braki w danych
+
+```{r}
+vis_miss(tabela)
+```
+
+Podsumowanie braków danych w formie tabeli
+
+```{r}
+miss_var_summary(tabela)
+```
+
+Wizualizacja braków danych w formie wykresu słupkowego. Poniżej
+wyświetlane są zależności pomiędzy brakami danych. Z wykresu wynika, że
+nie ma wzorca braku danych, są one niezależne. Jest niewiele przypadków
+(łącznie 34), gdzie brakuje więcej niż jednej zmiennej w wierszu, ale
+nie można tego uznać za regułę.
+
+```{r}
+gg_miss_upset(tabela)
+```
+
+**Wypełnianie braków danych** 
+W tym etapie projektu wypełniliśmy braki danych. 
+
+Wypełnienie braków danych
+```{r}
 dane <- hotdeck(tabela)
 
-na.pattern(tabela) 
-#brakujące wzorce braków danych
+na.pattern(tabela) #brakujące wzorce braków danych
 
-tabela$Age <- imputate_na(tabela, Age,
-                                 no_attrs = TRUE, method = "median")
-View(tabela)
-                                 
+tabela$Age <- imputate_na(tabela, Age, no_attrs = TRUE, method =
+"median") View(tabela)
+```
 # tabela$Attrition <- imputate_na(tabela, Age, Attrition, MonthlyIncome,
-#                                 no_attrs = TRUE, method = "median")
-                                 
+
+# no_attrs = TRUE, method = "median")
+
 miss_var_summary(tabela)
 
-tabela$MonthlyIncome <- imputate_na(tabela, MonthlyIncome,
-                                 no_attrs = TRUE, method = "median")
-                                 
-View(tabela)
-miss_var_summary(tabela)       
+tabela\$MonthlyIncome \<- imputate_na(tabela, MonthlyIncome, no_attrs =
+TRUE, method = "median")
+
+View(tabela) miss_var_summary(tabela)
 
 # proba mikrofonu
-                                 
