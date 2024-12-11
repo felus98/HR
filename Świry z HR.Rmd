@@ -13,9 +13,11 @@ output:
 knitr::opts_chunk$set(cache = TRUE)
 ```
 
-# Wczytanie danych z pliku CSV
+```{r setup, message=FALSE, warning=FALSE, include=FALSE}
+# **Wczytanie danych z pliku CSV**
 dane <- read.csv(file="HR.csv") 
-
+knitr::opts_chunk$set(cache = TRUE)
+```
 # Kolejne wczytanie danych z nagłówkami i specyficznymi separatorami
 tabela <- read.csv("HR.csv", header= TRUE, sep=",", dec=",")
 
