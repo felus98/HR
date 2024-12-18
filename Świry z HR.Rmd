@@ -75,22 +75,11 @@ trzy zmienne, które mają braki. Są to kolejno: Age (100), MonthlyIncome
 plot_missing(tabela)
 ```
 
-Sprawdzenie kompletności wierszy ? nie wiem co to
+W celu znalezenia poszczególnych wierszy zawierającyh braki danych, wykorzystano funkcję rows_with_na,
+która przechowuje indeksy wierszy, które zawierają brakujące wartości. W wynikiem tej funkcji jest tabela, która pozbawiona jest wierszy z N/A.
 
 ```{r}
-complete.cases(tabela)
-```
-
-rows_with_na przechowuje indeksy wierszy, które zawierają brakujące
-wartości.
-
-```{r}
-rows_with_na <- which(!complete.cases(tabela))
-```
-
-Wyświetlenie wierszy z brakującymi wartościami
-
-```{r}
+rows_with_na <- which(complete.cases(tabela))
 tabela[rows_with_na, ]
 ```
 
