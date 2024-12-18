@@ -71,7 +71,7 @@ wartości. Jak można odczytać z poniższego wykresu, w zbiorze występują
 trzy zmienne, które mają braki. Są to kolejno: Age (100), MonthlyIncome
 (150) oraz Attrition(150).
 
-```{r echo=FALSE}
+```{r echo=TRUE}
 plot_missing(tabela)
 ```
 
@@ -101,7 +101,7 @@ names(tabela)[cols_with_na]
 Shadowmapa brakujących danych pokazuje, w których kolumnach znajdują się
 brakujące dane oraz podaje ich liczbę.
 
-```{r}
+```{r echo=TRUE}
 gg_miss_var(tabela) + labs( title = "Shadowmapa brakujących danych", x =
 "Kolumny", y = "Liczba brakujących wartości" )
 ```
