@@ -123,7 +123,31 @@ nie można tego uznać za regułę.
 
 ```{r echo=TRUE}
 gg_miss_upset(tabela)
+
 ```
+
+
+# sprawdzanie czy dane zawierają inne wartości specjalne?
+
+```{r echo=TRUE}
+
+is.special <- function(x){
+  if (is.numeric(x)) !is.finite(x) else is.na(x)
+}
+
+sapply(tabela, is.special)
+
+```
+
+```{r}
+
+for (n in colnames(tabela)){
+  is.na(tabela[[n]]) <- is.special(tabela[[n]])
+}
+summary(tabela)
+
+```
+
 
 **Wypełnianie braków danych** W tym etapie projektu wypełniliśmy braki
 danych.
