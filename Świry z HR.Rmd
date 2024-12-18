@@ -84,19 +84,27 @@ complete.cases(tabela)
 rows_with_na przechowuje indeksy wierszy, które zawierają brakujące
 wartości.
 
-rows_with_na \<- which(!complete.cases(tabela))
+```{r}
+rows_with_na <- which(!complete.cases(tabela))
+```
 
 Wyświetlenie wierszy z brakującymi wartościami
 
+```{r}
 tabela[rows_with_na, ]
+```
 
 Znalezienie kolumn z brakującymi wartościami
 
-cols_with_na \<- which(colSums(is.na(tabela)) \> 0)
+```{r}
+cols_with_na <- which(colSums(is.na(tabela)) > 0)
+```
 
 Wyświetla nazwy kolumn, które zawierają brakujące dane
 
+```{r echo=TRUE}
 names(tabela)[cols_with_na]
+```
 
 Shadowmapa brakujących danych pokazuje, w których kolumnach znajdują się
 brakujące dane oraz podaje ich liczbę.
@@ -108,13 +116,13 @@ gg_miss_var(tabela) + labs( title = "Shadowmapa brakujących danych", x =
 
 Wykres pokazujący gdzie występują poszczególne braki w danych
 
-```{r}
+```{r echo=TRUE}
 vis_miss(tabela)
 ```
 
 Podsumowanie braków danych w formie tabeli
 
-```{r}
+```{r echo=TRUE}
 miss_var_summary(tabela)
 ```
 
@@ -124,7 +132,7 @@ nie ma wzorca braku danych, są one niezależne. Jest niewiele przypadków
 (łącznie 34), gdzie brakuje więcej niż jednej zmiennej w wierszu, ale
 nie można tego uznać za regułę.
 
-```{r echo=FALSE}
+```{r echo=TRUE}
 gg_miss_upset(tabela)
 ```
 
