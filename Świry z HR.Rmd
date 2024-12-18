@@ -123,29 +123,24 @@ nie można tego uznać za regułę.
 
 ```{r echo=TRUE}
 gg_miss_upset(tabela)
-
 ```
 
 
 # sprawdzanie czy dane zawierają inne wartości specjalne?
 
 ```{r echo=TRUE}
-
 is.special <- function(x){
   if (is.numeric(x)) !is.finite(x) else is.na(x)
 }
 
 sapply(tabela, is.special)
-
 ```
 
 ```{r}
-
 for (n in colnames(tabela)){
   is.na(tabela[[n]]) <- is.special(tabela[[n]])
 }
 summary(tabela)
-
 ```
 
 # Sprawdzanie spojnosci danych - tworzenie RULES
@@ -156,17 +151,29 @@ summary(tabela)
 
 install.packages("editrules")
 library(editrules)
-
+okreslenie regul:
 ```{r}
-RULE <- editset(c("Age","Attrition %in% c('yes','no',)"
-               , "MonthlyIncome > 0", "YearsAtCompany >= 0"))
+RULE <- editset(c(
+  "Age >= 18",
+  "Age <100",
+  "Attrition %in% c('Yes','No')",
+  "MonthlyIncome > 0",
+  "YearsAtCompany >= 0"
+))
 RULE
-````
-
-
-
-
-
+```
+sprawdzanie ile razy regula jest lamana
+```{r}
+violations <- violatedEdits(RULE, tabela)
+summary(violations)
+summary(violatedEdits(RULE, tabela))
+plot(violations)
+```
+Wartosci odstajacce wykres
+``` {r}
+boxplot(tabela$Age)
+boxplot(tabela$MonthlyIncome)
+```
 **Wypełnianie braków danych** W tym etapie projektu wypełniliśmy braki
 danych.
 
