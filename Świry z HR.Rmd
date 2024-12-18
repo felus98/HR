@@ -148,6 +148,24 @@ summary(tabela)
 
 ```
 
+# Sprawdzanie spojnosci danych - tworzenie RULES
+
+# Rule 1 - Age pomiedzy 18 a 100 lat
+# Rule 2 - Attrition - albo Yes albo No
+# Rule 3 - MonthlyIncome, YearsAtCompany,  - > 0
+
+install.packages("editrules")
+library(editrules)
+
+```{r}
+RULE <- editset(c("Age","Attrition %in% c('yes','no',)"
+               , "MonthlyIncome > 0", "YearsAtCompany >= 0"))
+RULE
+````
+
+
+
+
 
 **Wypełnianie braków danych** W tym etapie projektu wypełniliśmy braki
 danych.
