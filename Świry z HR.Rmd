@@ -14,9 +14,10 @@ editor_options:
 # **Projekt HR**
 
 Poniższy projekt przedstawia analizę danych opartą na danych
-zawierających... Projekt zawiera weryfikację, wizualizację oraz
-wypełnianie braków danych. Celem projektu jest wykonanie analizy,
-opartej na przygotowanym zbiorze danych.
+zawierających... Projekt zawiera się w czeterech głównych etapach: 1.
+Data cleansing, Wrangling, 2. Wizualizacja danych, 3. Analiza opisowa,
+4. Wnioskowanie. Celem projektu jest wykonanie analizy, opartej na
+przygotowanym zbiorze danych.
 
 ### *Wczytanie bibliotek*
 
@@ -34,10 +35,9 @@ library(rstatix)
 library(DataExplorer)
 ```
 
-# **Wczytanie danych z pliku CSV**
+# **Etap 1. Data cleansing, Wrangling**
 
-Pierwszym etapem projektu jest wczytanie zestawu danych, na którym
-będzie się obdywać analiza.
+W celu wykonania projektu wczytano zestaw danych.
 
 ```{r}
 dane <- read.csv(file="HR.csv") 
@@ -49,20 +49,27 @@ Kolejne wczytanie danych z nagłówkami i specyficznymi separatorami.
 tabela <- read.csv("HR.csv", header= TRUE, sep=",", dec=",")
 ```
 
-Następnie należy wyświetlić dane z tabeli, aby wstępnie zweryfikować ich
-poprawność.
+Następnie wyświetlono dane z tabeli, aby wstępnie zweryfikować ich
+poprawność, ilość oraz aby zyskać ogólny pogląd na badane wartości.
 
 ```{r}
 View(tabela)
 ```
 
-Sprawdzenie liczby brakujących wartości w całym zbiorze danych
+Ważnym krokiem analizy jest sprawdzenie liczby brakujących wartości w
+całym zbiorze danych. Uzyskana wartość to łączna liczba brakujących
+obserwacji wśród wszystkich zmiennych.
 
 ```{r echo=TRUE}
 sum(is.na(tabela))
 ```
 
-Wizualizacja brakujących danych
+Aby dowiedzieć się szczegółów dotyczących braków zmiennych wykonano
+wykres brakujących wartości. Przedstawia on wszystkie zmienne
+występujące w zbiorze danych oraz wskazuje te, które zawierają puste
+wartości. Jak można odczytać z poniższego wykresu, w zbiorze występują
+trzy zmienne, które mają braki. Są to kolejno: Age (100), MonthlyIncome
+(150) oraz Attrition(150).
 
 ```{r echo=FALSE}
 plot_missing(tabela)
@@ -94,7 +101,7 @@ names(tabela)[cols_with_na]
 Shadowmapa brakujących danych pokazuje, w których kolumnach znajdują się
 brakujące dane oraz podaje ich liczbę.
 
-```{r echo=TRUE}
+```{r}
 gg_miss_var(tabela) + labs( title = "Shadowmapa brakujących danych", x =
 "Kolumny", y = "Liczba brakujących wartości" )
 ```
@@ -117,14 +124,15 @@ nie ma wzorca braku danych, są one niezależne. Jest niewiele przypadków
 (łącznie 34), gdzie brakuje więcej niż jednej zmiennej w wierszu, ale
 nie można tego uznać za regułę.
 
-```{r}
+```{r echo=FALSE}
 gg_miss_upset(tabela)
 ```
 
-**Wypełnianie braków danych** 
-W tym etapie projektu wypełniliśmy braki danych. 
+**Wypełnianie braków danych** W tym etapie projektu wypełniliśmy braki
+danych.
 
 Wypełnienie braków danych
+
 ```{r}
 dane <- hotdeck(tabela)
 
@@ -133,7 +141,8 @@ na.pattern(tabela) #brakujące wzorce braków danych
 tabela$Age <- imputate_na(tabela, Age, no_attrs = TRUE, method =
 "median") View(tabela)
 ```
-# tabela$Attrition <- imputate_na(tabela, Age, Attrition, MonthlyIncome,
+
+# tabela\$Attrition \<- imputate_na(tabela, Age, Attrition, MonthlyIncome,
 
 # no_attrs = TRUE, method = "median")
 
