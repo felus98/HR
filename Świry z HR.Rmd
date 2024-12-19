@@ -210,12 +210,25 @@ select(Age, BusinessTravel, Department, Education, Gender, MonthlyIncome, YearsW
   
 ```
 
-# Sortowanie danych
+# Sortowanie danych wedlug jednej lub wiecej kolumn
 
 ```{r}
 
-tabela_knn 
-
+tabela_knn %>%
+  arrange(MonthlyIncome)
+tabela_knn %>%
+  arrange(Age)
+tabela_knn %>%
+  count(Age)
+tabela_knn %>%
+  count(Department)
+tabela_knn %>%
+  count(Education)
+tabela_knn %>%
+  count(JobLevel)
+tabela_knn %>%
+  count(Gender)
+        
 ```
 
 
