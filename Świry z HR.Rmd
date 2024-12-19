@@ -174,10 +174,26 @@ Wartosci odstajacce wykres
 boxplot(tabela$Age)
 boxplot(tabela$MonthlyIncome)
 ```
-**Wypełnianie braków danych** W tym etapie projektu wypełniliśmy braki
+
+Wypełnianie braków danych** W tym etapie projektu wypełniliśmy braki
 danych.
 
-Wypełnienie braków danych
+Wypełnienie braków danych - wszystkich wartosci
+
+install.packages("VIM")
+
+```{r}
+tabela_knn <- kNN(tabela)
+Age_kNN <- tabela_knn$Age
+````
+
+# powyzsza metoda wypelnila wszystkie brakujace dane
+
+sprawdzenie raz jeszcze czy napewno wszystkie dane zostaly uzupelnione
+
+```{r}
+cols_with_na <- which(colSums(is.na(tabela)) > 0)
+```
 
 ```{r}
 dane <- hotdeck(tabela)
