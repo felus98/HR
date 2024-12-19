@@ -185,7 +185,7 @@ install.packages("VIM")
 ```{r}
 tabela_knn <- kNN(tabela)
 Age_kNN <- tabela_knn$Age
-````
+```
 
 # powyzsza metoda wypelnila wszystkie brakujace dane
 
@@ -194,6 +194,39 @@ sprawdzenie raz jeszcze czy napewno wszystkie dane zostaly uzupelnione
 ```{r}
 cols_with_na <- which(colSums(is.na(tabela)) > 0)
 ```
+
+# Data Wrangling 
+
+manipulacja danymi
+
+library(tidyverse)
+
+```{r}
+
+tabela_knn %>%
+  filter(Age<45, MonthlyIncome<5000, YearsWithCurrManager<5)
+tabela_knn %>%
+select(Age, BusinessTravel, Department, Education, Gender, MonthlyIncome, YearsWithCurrManager)
+  
+```
+
+# Sortowanie danych
+
+```{r}
+
+tabela_knn 
+
+```
+
+
+
+
+
+
+
+
+
+# to jest to co robilismy wczesniej:
 
 ```{r}
 dane <- hotdeck(tabela)
