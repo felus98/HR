@@ -41,10 +41,6 @@ library(tidyverse)
 
 W celu wykonania projektu wczytano zestaw danych.
 
-```{r}
-dane <- read.csv(file="HR.csv") 
-```
-
 Kolejne wczytanie danych z nagłówkami i specyficznymi separatorami.
 
 ```{r}
