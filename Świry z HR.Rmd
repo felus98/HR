@@ -237,10 +237,53 @@ tabela_knn %>%
   ) %>%
   arrange(desc(Liczba_osób))
 ```
+library(datarium)
+library(ggplot2)
 
+# wykres 1 zmiennej - JobSatisfaction:
 
+```{r}
+ggplot(tabela_knn, aes(x=JobSatisfaction)) +
+  geom_histogram(bins=10) +
+  labs(title="Satysfakcja z pracy", x="Ocena od 1 do 4", y="Liczba osób") +
+  theme_bw() +
+  facet_grid(~Gender)
+```
+ 
+# wykres 2 zmiennych - Education wg MonthlyIncome:
+ 
+```{r}
+  ggplot(tabela_knn, aes(x=Education, y=MonthlyIncome, color=Gender)) +
+  geom_point() +
+  geom_smooth(method="lm") + 
+  theme(legend.position = c(0.15, 0.85)) +
+  labs(
+    title = "Zależność wykształcenia względem zarobków",
+    x = "Poziom wykształcenia",
+    y = "Miesięczne zarobki"
+  )
+```
 
+# wykres dochodów w zależności od wieku:
 
+```{r} 
+ggplot(tabela_knn, aes(x=Age, y=MonthlyIncome, color=Gender)) +
+  geom_point() +
+  geom_smooth(method="lm") + 
+  theme(legend.position = c(0.1, 0.85)) + 
+  labs(
+    title = "Zależność wieku względem zarobków",
+    x = "Wiek",
+    y = "Miesięczne zarobki")
+```
+# wykres odległości od pracy w zależności do satysfakcji z pracy:
+ 
+```{r} 
+ggplot(tabela_knn, aes(x=EducationField, y=MonthlyIncome)) +
+  geom_point() +
+  geom_smooth(method="lm")
+```
+ 
 # to jest to co robilismy wczesniej:
 
 ```{r}
