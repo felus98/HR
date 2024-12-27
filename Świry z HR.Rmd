@@ -199,7 +199,7 @@ manipulacja danymi
 ```{r}
 
 tabela_knn %>%
-  filter(Age<45, MonthlyIncome<5000, YearsWithCurrManager<5)
+  filter(Age < 45, MonthlyIncome < 5000, YearsWithCurrManager < 5)
 tabela_knn %>%
 select(Age, BusinessTravel, Department, Education, Gender, MonthlyIncome, YearsWithCurrManager)
   
@@ -225,6 +225,21 @@ tabela_knn %>%
   count(Gender)
         
 ```
+
+# Zliczenie na jakich stanowiskach pracuje najwięcej osób i posortowanie malejąco, obliczenie średniego zarobku dla danego stanowiska
+
+```{r}
+tabela_knn %>%
+  group_by(JobRole) %>%
+  summarise(
+    Liczba_osób = n(),
+    Średni_zarobek = mean(MonthlyIncome, na.rm = TRUE)
+  ) %>%
+  arrange(desc(Liczba_osób))
+```
+
+
+
 
 # to jest to co robilismy wczesniej:
 
