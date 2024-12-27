@@ -233,7 +233,7 @@ tabela_knn %>%
   group_by(JobRole) %>%
   summarise(
     Liczba_osób = n(),
-    Średni_zarobek = mean(MonthlyIncome, na.rm = TRUE)
+    Średni_zarobek = mean(MonthlyIncome)
   ) %>%
   arrange(desc(Liczba_osób))
 ```
