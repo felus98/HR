@@ -250,12 +250,13 @@ ggplot(tabela_knn, aes(x=JobSatisfaction)) +
   facet_grid(~Gender)
 ```
  
-# wykres 2 zmiennych - Education wg MonthlyIncome:
+# wykres 2 zmiennych - Poziom wykształcenia według miesięcznych zarobków:
  
 ```{r}
   ggplot(tabela_knn, aes(x=Education, y=MonthlyIncome, color=Gender)) +
   geom_point() +
   geom_smooth(method="lm") + 
+  theme_light() +
   theme(legend.position = c(0.15, 0.85)) +
   labs(
     title = "Zależność wykształcenia względem zarobków",
@@ -270,19 +271,58 @@ ggplot(tabela_knn, aes(x=JobSatisfaction)) +
 ggplot(tabela_knn, aes(x=Age, y=MonthlyIncome, color=Gender)) +
   geom_point() +
   geom_smooth(method="lm") + 
+  theme_light() +
   theme(legend.position = c(0.1, 0.85)) + 
   labs(
     title = "Zależność wieku względem zarobków",
     x = "Wiek",
-    y = "Miesięczne zarobki")
+    y = "Miesięczne zarobki") 
 ```
-# wykres odległości od pracy w zależności do satysfakcji z pracy:
+# wykres zależności satysfakcji z pracy od work life balance
  
 ```{r} 
-ggplot(tabela_knn, aes(x=EducationField, y=MonthlyIncome)) +
-  geom_point() +
-  geom_smooth(method="lm")
+ggplot(data = tabela_knn, aes(x = WorkLifeBalance, y = JobSatisfaction)) +
+  geom_tile(aes(fill = after_stat(count)), stat = "bin2d") +
+  scale_fill_gradient(low = "white", high = "blue") +
+  labs(
+    title = "Zależność satysfakcji z pracy od Work-Life Balance",
+    x = "Work fife balance",
+    y = "Satysfakcja z pracy",
+    fill = "Liczba"
+  )
 ```
+ # wykres zależności satysfakcji z relacji od stanu cywilnego
+ 
+```{r}
+ggplot(data = tabela_knn, aes(x = RelationshipSatisfaction, fill = MaritalStatus)) +
+  geom_histogram(binwidth = 1, position = "dodge", color = "black") +
+  facet_grid(. ~ MaritalStatus) +
+  scale_fill_manual(values = c("skyblue", "orange", "purple")) +
+  labs(
+    title = "Rozkład satysfakcji w zależności od stanu cywilnego",
+    x = "Satysfakcja z relacji",
+    y = "Liczba osób",
+    fill = "Stan cywilny"
+  ) +
+  theme_minimal()
+``` 
+```{r}
+heatmap_data <- as.data.frame(table(tabela_knn$JobRole, tabela_knn$BusinessTravel))
+colnames(heatmap_data) <- c("JobRole", "BusinessTravel", "Count")
+ggplot(data = heatmap_data, aes(x = JobRole, y = BusinessTravel, fill = Count)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "white", high = "orange") +
+  labs(
+    title = "Liczebność podróży służbowych w zależności od stanowiska",
+    x = "Stanowisko pracy",
+    y = "Podróże służbowe",
+    fill = "Liczba osób"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+ 
+ View(tabela_knn)
  
 # to jest to co robilismy wczesniej:
 
@@ -294,6 +334,7 @@ na.pattern(tabela) #brakujące wzorce braków danych
 tabela$Age <- imputate_na(tabela, Age, no_attrs = TRUE, method =
 "median") View(tabela)
 ```
+
 
 # tabela\$Attrition \<- imputate_na(tabela, Age, Attrition, MonthlyIncome,
 
