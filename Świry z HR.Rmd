@@ -77,41 +77,38 @@ trzy zmienne, które mają braki. Są to kolejno: Age (100), MonthlyIncome
 plot_missing(tabela)
 ```
 
-W celu znalezenia poszczególnych wierszy zawierającyh braki danych, wykorzystano funkcję rows_with_na,
-która przechowuje indeksy wierszy, które zawierają brakujące wartości. W wynikiem tej funkcji jest tabela, która pozbawiona jest wierszy z N/A.
+W celu znalezenia poszczególnych wierszy zawierającyh braki danych,
+wykorzystano funkcję rows_with_na, która przechowuje indeksy wierszy,
+które zawierają brakujące wartości. W wynikiem tej funkcji jest tabela,
+która pozbawiona jest wierszy z N/A.
 
 ```{r}
 rows_with_na <- which(complete.cases(tabela))
 tabela[rows_with_na, ]
 ```
 
-Znalezienie kolumn z brakującymi wartościami
+Dla potwierdzenia wcześniejszych analizch, zastosowano funkcję, która zwraca nazwy wierszy zawierające braki danych. Tak jak wyszło to we wcześniejszych metodach, zmiennimi z brakami są Age, Attrition oraz MonthlyIncome.
 
 ```{r}
 cols_with_na <- which(colSums(is.na(tabela)) > 0)
-```
-
-Wyświetla nazwy kolumn, które zawierają brakujące dane
-
-```{r echo=TRUE}
 names(tabela)[cols_with_na]
 ```
 
-Shadowmapa brakujących danych pokazuje, w których kolumnach znajdują się
-brakujące dane oraz podaje ich liczbę.
+Kolejną metodą sprawdzającą braki danych jest shadowmapa. Pokazuje ona, w których kolumnach znajdują się
+brakujące dane oraz zwraca ich liczbę.
 
 ```{r echo=TRUE}
 gg_miss_var(tabela) + labs( title = "Shadowmapa brakujących danych", x =
 "Kolumny", y = "Liczba brakujących wartości" )
 ```
 
-Wykres pokazujący gdzie występują poszczególne braki w danych
+Poniżej zastosowano bardziej szczegółowy wykres, który pokazuje nie tylko w których zmiennych są braki, ale także wskazuje wiersz, w ktorym one występują.
 
 ```{r echo=TRUE}
 vis_miss(tabela)
 ```
 
-Podsumowanie braków danych w formie tabeli
+Podsumowanie braków danych w formie tabeli.
 
 ```{r echo=TRUE}
 miss_var_summary(tabela)
@@ -147,10 +144,13 @@ summary(tabela)
 Sprawdzanie spojnosci danych - tworzenie RULES.
 
 # Rule 1 - Age pomiedzy 18 a 100 lat
+
 # Rule 2 - Attrition - albo Yes albo No
-# Rule 3 - MonthlyIncome, YearsAtCompany,  - > 0
+
+# Rule 3 - MonthlyIncome, YearsAtCompany, - \> 0
 
 okreslenie regul:
+
 ```{r}
 RULE <- editset(c(
   "Age >= 18",
@@ -161,20 +161,24 @@ RULE <- editset(c(
 ))
 RULE
 ```
+
 sprawdzanie ile razy regula jest łamana
+
 ```{r}
 violations <- violatedEdits(RULE, tabela)
 summary(violations)
 summary(violatedEdits(RULE, tabela))
 plot(violations)
 ```
+
 Poniższy wykres przedstawia wartości odstające w badanej populacji.
-``` {r}
+
+```{r}
 boxplot(tabela$Age)
 boxplot(tabela$MonthlyIncome)
 ```
 
-Wypełnianie braków danych** W tym etapie projektu wypełniliśmy braki
+Wypełnianie braków danych\*\* W tym etapie projektu wypełniliśmy braki
 danych.
 
 Wypełnienie braków danych - wszystkich wartosci
@@ -192,7 +196,7 @@ sprawdzenie raz jeszcze czy napewno wszystkie dane zostaly uzupelnione
 cols_with_na <- which(colSums(is.na(tabela)) > 0)
 ```
 
-# Data Wrangling 
+# Data Wrangling
 
 manipulacja danymi
 
@@ -237,8 +241,8 @@ tabela_knn %>%
   ) %>%
   arrange(desc(Liczba_osób))
 ```
-library(datarium)
-library(ggplot2)
+
+library(datarium) library(ggplot2)
 
 # wykres 1 zmiennej - JobSatisfaction:
 
@@ -249,9 +253,9 @@ ggplot(tabela_knn, aes(x=JobSatisfaction)) +
   theme_bw() +
   facet_grid(~Gender)
 ```
- 
+
 # wykres 2 zmiennych - Poziom wykształcenia według miesięcznych zarobków:
- 
+
 ```{r}
   ggplot(tabela_knn, aes(x=Education, y=MonthlyIncome, color=Gender)) +
   geom_point() +
@@ -267,7 +271,7 @@ ggplot(tabela_knn, aes(x=JobSatisfaction)) +
 
 # wykres dochodów w zależności od wieku:
 
-```{r} 
+```{r}
 ggplot(tabela_knn, aes(x=Age, y=MonthlyIncome, color=Gender)) +
   geom_point() +
   geom_smooth(method="lm") + 
@@ -278,9 +282,10 @@ ggplot(tabela_knn, aes(x=Age, y=MonthlyIncome, color=Gender)) +
     x = "Wiek",
     y = "Miesięczne zarobki") 
 ```
+
 # wykres zależności satysfakcji z pracy od work life balance
- 
-```{r} 
+
+```{r}
 ggplot(data = tabela_knn, aes(x = WorkLifeBalance, y = JobSatisfaction)) +
   geom_tile(aes(fill = after_stat(count)), stat = "bin2d") +
   scale_fill_gradient(low = "white", high = "blue") +
@@ -291,8 +296,9 @@ ggplot(data = tabela_knn, aes(x = WorkLifeBalance, y = JobSatisfaction)) +
     fill = "Liczba"
   )
 ```
- # wykres zależności satysfakcji z relacji od stanu cywilnego
- 
+
+\# wykres zależności satysfakcji z relacji od stanu cywilnego
+
 ```{r}
 ggplot(data = tabela_knn, aes(x = RelationshipSatisfaction, fill = MaritalStatus)) +
   geom_histogram(binwidth = 1, position = "dodge", color = "black") +
@@ -305,7 +311,8 @@ ggplot(data = tabela_knn, aes(x = RelationshipSatisfaction, fill = MaritalStatus
     fill = "Stan cywilny"
   ) +
   theme_minimal()
-``` 
+```
+
 ```{r}
 heatmap_data <- as.data.frame(table(tabela_knn$JobRole, tabela_knn$BusinessTravel))
 colnames(heatmap_data) <- c("JobRole", "BusinessTravel", "Count")
@@ -321,9 +328,9 @@ ggplot(data = heatmap_data, aes(x = JobRole, y = BusinessTravel, fill = Count)) 
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
- 
- View(tabela_knn)
- 
+
+View(tabela_knn)
+
 # to jest to co robilismy wczesniej:
 
 ```{r}
@@ -334,17 +341,3 @@ na.pattern(tabela) #brakujące wzorce braków danych
 tabela$Age <- imputate_na(tabela, Age, no_attrs = TRUE, method =
 "median") View(tabela)
 ```
-
-
-# tabela\$Attrition \<- imputate_na(tabela, Age, Attrition, MonthlyIncome,
-
-# no_attrs = TRUE, method = "median")
-
-miss_var_summary(tabela)
-
-tabela\$MonthlyIncome \<- imputate_na(tabela, MonthlyIncome, no_attrs =
-TRUE, method = "median")
-
-View(tabela) miss_var_summary(tabela)
-
-# proba mikrofonu
