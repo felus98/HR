@@ -35,9 +35,10 @@ library(rstatix)
 library(DataExplorer)
 library(editrules)
 library(tidyverse)
+library(datarium)
 ```
 
-# **Etap 1. Data cleansing, Wrangling**
+# **Etap 1. Data cleansing**
 
 W celu wykonania projektu wczytano zestaw danych.
 
@@ -87,22 +88,27 @@ rows_with_na <- which(complete.cases(tabela))
 tabela[rows_with_na, ]
 ```
 
-Dla potwierdzenia wcześniejszych analizch, zastosowano funkcję, która zwraca nazwy wierszy zawierające braki danych. Tak jak wyszło to we wcześniejszych metodach, zmiennimi z brakami są Age, Attrition oraz MonthlyIncome.
+Dla potwierdzenia wcześniejszych analizch, zastosowano funkcję, która
+zwraca nazwy wierszy zawierające braki danych. Tak jak wyszło to we
+wcześniejszych metodach, zmiennimi z brakami są Age, Attrition oraz
+MonthlyIncome.
 
 ```{r}
 cols_with_na <- which(colSums(is.na(tabela)) > 0)
 names(tabela)[cols_with_na]
 ```
 
-Kolejną metodą sprawdzającą braki danych jest shadowmapa. Pokazuje ona, w których kolumnach znajdują się
-brakujące dane oraz zwraca ich liczbę.
+Kolejną metodą sprawdzającą braki danych jest shadowmapa. Pokazuje ona,
+w których kolumnach znajdują się brakujące dane oraz zwraca ich liczbę.
 
 ```{r echo=TRUE}
 gg_miss_var(tabela) + labs( title = "Shadowmapa brakujących danych", x =
 "Kolumny", y = "Liczba brakujących wartości" )
 ```
 
-Poniżej zastosowano bardziej szczegółowy wykres, który pokazuje nie tylko w których zmiennych są braki, ale także wskazuje wiersz, w ktorym one występują.
+Poniżej zastosowano bardziej szczegółowy wykres, który pokazuje nie
+tylko w których zmiennych są braki, ale także wskazuje wiersz, w ktorym
+one występują.
 
 ```{r echo=TRUE}
 vis_miss(tabela)
@@ -124,7 +130,11 @@ nie można tego uznać za regułę.
 gg_miss_upset(tabela)
 ```
 
-Sprawdzanie czy dane zawierają inne wartości specjalne.
+Sprawdzanie czy dane zawierają inne wartości specjalne. Wykrycie
+wartości specjalnych jest koniecznym krokiem, gdyż mogłyby one wpłynąć
+na póżniejszą analizę. Funkcja ta wykazała, że w badanym pliku dane nie
+zawierają żadnych wartości specjalnych, zatem nie ma potrzebny niczego
+pod tym kątem zmieniać.
 
 ```{r echo=TRUE}
 is.special <- function(x){
@@ -134,6 +144,8 @@ is.special <- function(x){
 sapply(tabela, is.special)
 ```
 
+To nie wiem o co chodziło?
+
 ```{r}
 for (n in colnames(tabela)){
   is.na(tabela[[n]]) <- is.special(tabela[[n]])
@@ -141,15 +153,14 @@ for (n in colnames(tabela)){
 summary(tabela)
 ```
 
-Sprawdzanie spojnosci danych - tworzenie RULES.
-
-# Rule 1 - Age pomiedzy 18 a 100 lat
-
-# Rule 2 - Attrition - albo Yes albo No
-
-# Rule 3 - MonthlyIncome, YearsAtCompany, - \> 0
-
-okreslenie regul:
+Kolejnym krokiem w przygotowaniu danych do ich póżniejszej analizy jest
+sprawdzenie ich spójności. Dane powinny spełniać określone przez
+analityka reguły, aby nie fałszowały późniejszych obliczeń. W tym
+projekcie określono pięć reguł, które musiały zostać spełnione przez
+odpowiednie zmienne. Są to kolejno: wiek pracownika większy lub równy od
+18 i mniejszy od 100, odejście pracownika z firmy ma mieć wartość prawda
+lub fałsz, miesięczny dochód większy od zera oraz lata pracy z firmie
+większe lub równe zero.
 
 ```{r}
 RULE <- editset(c(
@@ -162,7 +173,8 @@ RULE <- editset(c(
 RULE
 ```
 
-sprawdzanie ile razy regula jest łamana
+Następnie zbadano ile razy w zbiorze danych łamane są ustanowione
+wcześniej reguły. Tutaj nie do końca umiem zinterpretować
 
 ```{r}
 violations <- violatedEdits(RULE, tabela)
@@ -172,6 +184,7 @@ plot(violations)
 ```
 
 Poniższy wykres przedstawia wartości odstające w badanej populacji.
+Dlaczego tutaj jest ten wykres?
 
 ```{r}
 boxplot(tabela$Age)
@@ -196,7 +209,7 @@ sprawdzenie raz jeszcze czy napewno wszystkie dane zostaly uzupelnione
 cols_with_na <- which(colSums(is.na(tabela)) > 0)
 ```
 
-# Data Wrangling
+# **Etap 2. Data wrangling**
 
 manipulacja danymi
 
@@ -209,7 +222,11 @@ select(Age, BusinessTravel, Department, Education, Gender, MonthlyIncome, YearsW
   
 ```
 
-# Sortowanie danych wedlug jednej lub wiecej kolumn
+Poniżej dokonano sortowania danych za pomocą jednej lub więcej
+zmiennych. Dodatkowo użyto funkcji 'count', aby zliczyć posortowane
+obserwacje. Z tego wiadomo na przykład, że w firmie pracowało więcej
+mężczyzn niż kobiet lub że najwięcej pracowników pochodziło z działu
+badań i rozwoju.
 
 ```{r}
 
@@ -230,7 +247,13 @@ tabela_knn %>%
         
 ```
 
-# Zliczenie na jakich stanowiskach pracuje najwięcej osób i posortowanie malejąco, obliczenie średniego zarobku dla danego stanowiska
+Zagłębiając się w funkcję sortowania, wykonano podsumowanie libczy osób
+na danych stanowiskach wraz z podaniem średniego zarobku na tym
+stanowisku. Uzyskane informacje posortowano malejąco. Z poniższej
+analizy wynika, że najwięcej osób pracowało na stanowisku dyrektora ds.
+sprzedaży, natomiast najmniej w dziale zasobów ludzkich. Średnio
+najlepiej nagradzanym stanowiskiem był przedstawiciel handlowy,
+natomiast najlepiej nagradzanym był manager.
 
 ```{r}
 tabela_knn %>%
@@ -242,9 +265,14 @@ tabela_knn %>%
   arrange(desc(Liczba_osób))
 ```
 
-library(datarium) library(ggplot2)
+# **Etap 3. Data visualization**
 
-# wykres 1 zmiennej - JobSatisfaction:
+### **Wykres 1 - Satysfakcja z pracy**
+
+Poniższy wykres przedstawia jak pracownicy z podziałem na płeć oceniali
+swoją staysfkację z pracy w czteropunktowej skali. Zdecydowanie więcej
+mężczyzn wskazało dwa najwyższe poziomy zadowolenia w porównaniu do
+kobiet.
 
 ```{r}
 ggplot(tabela_knn, aes(x=JobSatisfaction)) +
@@ -254,7 +282,20 @@ ggplot(tabela_knn, aes(x=JobSatisfaction)) +
   facet_grid(~Gender)
 ```
 
-# wykres 2 zmiennych - Poziom wykształcenia według miesięcznych zarobków:
+### **Wykres 2 - Zależność wyształcenia względem zarobków**
+
+Poniższy wykres przedstawia zależność poziomu wykształcenia do zarobków.
+Wydawać by się mogło, że wykształcenie znacznie wpływa na zarobki - co
+do zasady czym wyższe wykształcenie tym wyższe zarobki. Jednak w badanej
+populacji nie jest to zasadą. Choć rzeczywiście tendencja zaborków jest
+rosnąca oraz minimalne zarobki zwiększają się wraz z kolejnym poziomem
+wykształcenia, to najwyższe wartości obserwowane są w każdym z poziomów.
+Nie są to wcale pojedncze wartości odstające lecz powtarzające się
+obserwacje. Natomiast czym wyższe jest wykształcenie tym więcej
+pracowników zarabia statystycznie więcej niż z niższym wykształceniem.
+Widać również, że płeć nie ma specjalnego wpływu na zarobki. Zarówno
+kobiety i mężczyźni w badanej populacji byli w stanie zarobić zarówno
+mało, średnio jak i uzyskać te najwyższe wartości.
 
 ```{r}
   ggplot(tabela_knn, aes(x=Education, y=MonthlyIncome, color=Gender)) +
@@ -269,7 +310,17 @@ ggplot(tabela_knn, aes(x=JobSatisfaction)) +
   )
 ```
 
-# wykres dochodów w zależności od wieku:
+### **Wykres 3 - Zależność wieku względem zarobków**
+
+Ten punktowy wykres przedstawia zależność wieku pracownika względem jego
+zarobków. W tym przypadku logiczne założenie, że wraz z wiekiem zarobki
+powinny rosnąć jak najbardziej się sprawdza. Jak widać linia trendu jest
+rosnącą funckją liniową, wskazującą na średni wzrost zarobków względem
+wieku. Naturalnie występują wartości skrajnie odstające, gdzie 60 -
+latek zarabia mniej niż 20 - latek czy 30 - latek. Dodatkowo wykres
+podzielono względem płci. Linie trednu praktycznie się na siebie
+nakładają, co wskazuje na to, że płeć nie ma zbytniego wpływu na zarobki
+względem wieku - liczy się doświadczenie.
 
 ```{r}
 ggplot(tabela_knn, aes(x=Age, y=MonthlyIncome, color=Gender)) +
@@ -282,7 +333,8 @@ ggplot(tabela_knn, aes(x=Age, y=MonthlyIncome, color=Gender)) +
     x = "Wiek",
     y = "Miesięczne zarobki") 
 ```
-
+### **Wykres 4 - Zależność satysfakcji z pracy względem work-life balance**
+nie do końca kumam
 # wykres zależności satysfakcji z pracy od work life balance
 
 ```{r}
@@ -328,16 +380,20 @@ ggplot(data = heatmap_data, aes(x = JobRole, y = BusinessTravel, fill = Count)) 
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
-
-View(tabela_knn)
-
-# to jest to co robilismy wczesniej:
+### **Wykres x - Zależność satysfakcji z pracy względem odejść praconików**
+Na poniższym wykresie przedstawiono jak satysfakcja z pracy wpływa na decyzję pracownika o odejściu. Zdecydowanie widać, iż więcej jest pracowników, którzy zostają w firmie niż tych, którzy z niej odchodzą. Badana populacja wykazuje się bardzo wysoką satysfakcją z pracy - tych, którzy zostali i ocenili swoje zadowolonie najwyższym punktem jest niemalże dwuktornie więcej niż tych najmniej zadowolonych. 
+Natomiast odejście z pracy nie do końca podyktowane jest małą satysfakcją z pracy. Najwięcej pracowników, którzy odeszli z firmy ocenili swoje zadolowanie na 3 w czterostopniowej skali. Zatem wysoka satysfakcja nie gwaratnuje zatrzymanie pracownika. 
 
 ```{r}
-dane <- hotdeck(tabela)
-
-na.pattern(tabela) #brakujące wzorce braków danych
-
-tabela$Age <- imputate_na(tabela, Age, no_attrs = TRUE, method =
-"median") View(tabela)
+ggplot(data = tabela_knn, aes(x = JobSatisfaction, fill = Attrition)) +
+  geom_histogram(binwidth = 1, position = "dodge", color = "black") +
+  facet_grid(. ~ Attrition) +
+  scale_fill_manual(values = c("skyblue", "orange")) +
+  labs(
+    title = "Rozkład satysfakcji pracy do odejść pracowników",
+    x = "Satysfakcja z pracy",
+    y = "Liczba osób",
+    fill = "Odejście pracownika"
+  ) +
+  theme_minimal()
 ```
