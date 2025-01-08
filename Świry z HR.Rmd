@@ -397,3 +397,6 @@ ggplot(data = tabela_knn, aes(x = JobSatisfaction, fill = Attrition)) +
   ) +
   theme_minimal()
 ```
+
+#proba dzialania - commit
+
