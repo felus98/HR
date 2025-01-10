@@ -349,7 +349,8 @@ ggplot(data = tabela_knn, aes(x = WorkLifeBalance, y = JobSatisfaction)) +
   )
 ```
 
-\# wykres zależności satysfakcji z relacji od stanu cywilnego
+
+### **Wykres 5 - wykres zależności satysfakcji z relacji od stanu cywilnego**
 
 ```{r}
 ggplot(data = tabela_knn, aes(x = RelationshipSatisfaction, fill = MaritalStatus)) +
@@ -364,6 +365,8 @@ ggplot(data = tabela_knn, aes(x = RelationshipSatisfaction, fill = MaritalStatus
   ) +
   theme_minimal()
 ```
+
+### **Wykres 6 - wykres Liczebność podróży służbowych w zależności od stanowisk**
 
 ```{r}
 heatmap_data <- as.data.frame(table(tabela_knn$JobRole, tabela_knn$BusinessTravel))
@@ -380,7 +383,8 @@ ggplot(data = heatmap_data, aes(x = JobRole, y = BusinessTravel, fill = Count)) 
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
-### **Wykres x - Zależność satysfakcji z pracy względem odejść praconików**
+### **Wykres 7 - Zależność satysfakcji z pracy względem odejść praconików**
+
 Na poniższym wykresie przedstawiono jak satysfakcja z pracy wpływa na decyzję pracownika o odejściu. Zdecydowanie widać, iż więcej jest pracowników, którzy zostają w firmie niż tych, którzy z niej odchodzą. Badana populacja wykazuje się bardzo wysoką satysfakcją z pracy - tych, którzy zostali i ocenili swoje zadowolonie najwyższym punktem jest niemalże dwuktornie więcej niż tych najmniej zadowolonych. 
 Natomiast odejście z pracy nie do końca podyktowane jest małą satysfakcją z pracy. Najwięcej pracowników, którzy odeszli z firmy ocenili swoje zadolowanie na 3 w czterostopniowej skali. Zatem wysoka satysfakcja nie gwaratnuje zatrzymanie pracownika. 
 
