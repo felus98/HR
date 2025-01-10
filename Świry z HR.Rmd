@@ -333,6 +333,7 @@ ggplot(tabela_knn, aes(x=Age, y=MonthlyIncome, color=Gender)) +
     x = "Wiek",
     y = "Miesięczne zarobki") 
 ```
+
 ### **Wykres 4 - Zależność satysfakcji z pracy względem work-life balance**
 nie do końca kumam
 # wykres zależności satysfakcji z pracy od work life balance
@@ -402,5 +403,10 @@ ggplot(data = tabela_knn, aes(x = JobSatisfaction, fill = Attrition)) +
   theme_minimal()
 ```
 
-
-
+### **Wykres 1 - Satysfakcja z pracy**
+### **Wykres 2 - Zależność wyształcenia względem zarobków**
+### **Wykres 3 - Zależność wieku względem zarobków**
+### **Wykres 4 - Zależność satysfakcji z pracy względem work-life balance**
+### **Wykres 5 - wykres zależności satysfakcji z relacji od stanu cywilnego**
+### **Wykres 6 - wykres Liczebność podróży służbowych w zależności od stanowisk**
+### **Wykres 7 - Zależność satysfakcji z pracy względem odejść praconików**
