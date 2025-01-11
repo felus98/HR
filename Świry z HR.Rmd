@@ -403,7 +403,7 @@ ggplot(data = tabela_knn, aes(x = JobSatisfaction, fill = Attrition)) +
   theme_minimal()
 ```
 
-#te wykrey juz mamy
+#te wykrey juz mamy - mysle, ze az tyle nie potrzeba bez zmiennej attrition
 
 ### **Wykres 1 - Satysfakcja z pracy**
 ### **Wykres 2 - Zależność wyształcenia względem zarobków**
@@ -432,4 +432,15 @@ ggplot(data = tabela_knn, aes(x = YearsAtCompany, fill = Attrition)) +
 ```
 
 ### **Wykres 9 - Zależność liczby nadgodzin (OverTime) względem odejść (attrition)**
+```{r}
+ggplot(tabela, aes(x = Attrition, y = JobSatisfaction )) +
+  geom_boxplot() +
+  coord_flip()
+  labs(
+    title = "Wykres pudełkowy dla zmiennej Attrition",
+    x = "Attrition (Yes/No)",
+    y = "satydfakcja"
+  ) +
+  theme_minimal()
+```
 ### **Wykres 9 - Zależność liczby lat od ostatniego awansu (YearsSinceLastPromotion) względem odejść (attrition)**
