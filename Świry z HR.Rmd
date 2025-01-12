@@ -403,10 +403,19 @@ ggplot(data = tabela_knn, aes(x = JobSatisfaction, fill = Attrition)) +
   theme_minimal()
 ```
 
+#te wykrey juz mamy - mysle, ze az tyle nie potrzeba bez zmiennej attrition
 
-### **Wykres 8 - Zależność liczby lat pracy w firmie (YearsAtCompany) względem odejść (attrition)**
+### **Wykres 1 - Satysfakcja z pracy**
+### **Wykres 2 - Zależność wyształcenia względem zarobków**
+### **Wykres 3 - Zależność wieku względem zarobków**
+### **Wykres 4 - Zależność satysfakcji z pracy względem work-life balance**
+### **Wykres 5 - wykres zależności satysfakcji z relacji od stanu cywilnego**
+### **Wykres 6 - wykres Liczebność podróży służbowych w zależności od stanowisk**
+### **Wykres 7 - Zależność satysfakcji z pracy względem odejść praconików**
 
-#Wykres ten pokazuje, jak liczba lat pracy rozkłada się w grupie pracowników, którzy odeszli, w porównaniu do tych, którzy pozostali w firmie
+#do zrobienia:
+
+### **Wykres 8 - Zależność liczby lat pracy w firmie (YearsAtCompany) względem odejść (attrition) Wykres ten pokaże, jak liczba lat pracy rozkłada się w grupie pracowników, którzy odeszli, w porównaniu do tych, którzy pozostali w firmie **
 
 ```{r}
 ggplot(data = tabela_knn, aes(x = YearsAtCompany, fill = Attrition)) +
@@ -422,18 +431,16 @@ ggplot(data = tabela_knn, aes(x = YearsAtCompany, fill = Attrition)) +
   theme_minimal()
 ```
 
-#te wykrey juz mamy
-
-### **Wykres 1 - Satysfakcja z pracy**
-### **Wykres 2 - Zależność wyształcenia względem zarobków**
-### **Wykres 3 - Zależność wieku względem zarobków**
-### **Wykres 4 - Zależność satysfakcji z pracy względem work-life balance**
-### **Wykres 5 - wykres zależności satysfakcji z relacji od stanu cywilnego**
-### **Wykres 6 - wykres Liczebność podróży służbowych w zależności od stanowisk**
-### **Wykres 7 - Zależność satysfakcji z pracy względem odejść praconików**
-### **Wykres 8 - Zależność liczby lat pracy w firmie (YearsAtCompany) względem odejść (attrition)**
-
-#do zrobienia:
-
 ### **Wykres 9 - Zależność liczby nadgodzin (OverTime) względem odejść (attrition)**
+```{r}
+ggplot(tabela, aes(x = Attrition, y = JobSatisfaction )) +
+  geom_boxplot() +
+  coord_flip()
+  labs(
+    title = "Wykres pudełkowy dla zmiennej Attrition",
+    x = "Attrition (Yes/No)",
+    y = "satydfakcja"
+  ) +
+  theme_minimal()
+```
 ### **Wykres 9 - Zależność liczby lat od ostatniego awansu (YearsSinceLastPromotion) względem odejść (attrition)**
