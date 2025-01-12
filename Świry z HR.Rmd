@@ -78,7 +78,7 @@ trzy zmienne, które mają braki. Są to kolejno: Age (100), MonthlyIncome
 plot_missing(tabela)
 ```
 
-W celu znalezenia poszczególnych wierszy zawierającyh braki danych,
+#do usuniecia W celu znalezenia poszczególnych wierszy zawierającyh braki danych,
 wykorzystano funkcję rows_with_na, która przechowuje indeksy wierszy,
 które zawierają brakujące wartości. W wynikiem tej funkcji jest tabela,
 która pozbawiona jest wierszy z N/A.
@@ -136,6 +136,7 @@ na póżniejszą analizę. Funkcja ta wykazała, że w badanym pliku dane nie
 zawierają żadnych wartości specjalnych, zatem nie ma potrzebny niczego
 pod tym kątem zmieniać.
 
+#dousuniecia
 ```{r echo=TRUE}
 is.special <- function(x){
   if (is.numeric(x)) !is.finite(x) else is.na(x)
@@ -145,7 +146,7 @@ sapply(tabela, is.special)
 ```
 
 To nie wiem o co chodziło?
-
+#do usuniecia
 ```{r}
 for (n in colnames(tabela)){
   is.na(tabela[[n]]) <- is.special(tabela[[n]])
@@ -175,7 +176,7 @@ RULE
 
 Następnie zbadano ile razy w zbiorze danych łamane są ustanowione
 wcześniej reguły. Tutaj nie do końca umiem zinterpretować
-
+#naprawić błędy (zamienic na NA) i potem wypełnić braki imputacją
 ```{r}
 violations <- violatedEdits(RULE, tabela)
 summary(violations)
@@ -212,7 +213,7 @@ cols_with_na <- which(colSums(is.na(tabela)) > 0)
 # **Etap 2. Data wrangling**
 
 manipulacja danymi
-
+#do zmiany żeby wypluwało kila rekordów 
 ```{r}
 
 tabela_knn %>%
@@ -227,7 +228,7 @@ zmiennych. Dodatkowo użyto funkcji 'count', aby zliczyć posortowane
 obserwacje. Z tego wiadomo na przykład, że w firmie pracowało więcej
 mężczyzn niż kobiet lub że najwięcej pracowników pochodziło z działu
 badań i rozwoju.
-
+#zamiast tego wykresiki ile % pracuje mezczyzni kobiety, ile zrezygnowalo itd., w jakim wieku rezygnuja itd
 ```{r}
 
 tabela_knn %>%
@@ -297,6 +298,8 @@ Widać również, że płeć nie ma specjalnego wpływu na zarobki. Zarówno
 kobiety i mężczyźni w badanej populacji byli w stanie zarobić zarówno
 mało, średnio jak i uzyskać te najwyższe wartości.
 
+
+#zmienić na boxplot
 ```{r}
   ggplot(tabela_knn, aes(x=Education, y=MonthlyIncome, color=Gender)) +
   geom_point() +
@@ -322,6 +325,8 @@ podzielono względem płci. Linie trednu praktycznie się na siebie
 nakładają, co wskazuje na to, że płeć nie ma zbytniego wpływu na zarobki
 względem wieku - liczy się doświadczenie.
 
+
+#attrition kolorami można też dodać na innym wykresie
 ```{r}
 ggplot(tabela_knn, aes(x=Age, y=MonthlyIncome, color=Gender)) +
   geom_point() +
@@ -433,7 +438,7 @@ ggplot(data = tabela_knn, aes(x = YearsAtCompany, fill = Attrition)) +
 
 ### **Wykres 9 - Zależność liczby nadgodzin (OverTime) względem odejść (attrition)**
 ```{r}
-ggplot(tabela, aes(x = Attrition, y = JobSatisfaction )) +
+ggplot(tabela_knn, aes(x = Attrition, y = JobSatisfaction )) +
   geom_boxplot() +
   coord_flip()
   labs(
@@ -444,5 +449,7 @@ ggplot(tabela, aes(x = Attrition, y = JobSatisfaction )) +
   theme_minimal()
 ```
 ### **Wykres 9 - Zależność liczby lat od ostatniego awansu (YearsSinceLastPromotion) względem odejść (attrition)**
+### arrition względem cech ludzi działów, 
+### jak sie rozklada dochod satysfakcja 
 
-#proba dodany DS do Git ignore
+# testowski czy dziala znowu
