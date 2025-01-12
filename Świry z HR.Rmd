@@ -444,3 +444,5 @@ ggplot(tabela, aes(x = Attrition, y = JobSatisfaction )) +
   theme_minimal()
 ```
 ### **Wykres 9 - Zależność liczby lat od ostatniego awansu (YearsSinceLastPromotion) względem odejść (attrition)**
+
+#proba dodany DS do Git ignore
