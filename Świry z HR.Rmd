@@ -434,8 +434,9 @@ ggplot(data = tabela_knn, aes(x = YearsSinceLastPromotion, fill = Attrition)) +
 ### Wykres 5 - wykres zależności satysfakcji z relacji od stanu cywilnego
 ### Wykres 6 - wykres Liczebność podróży służbowych w zależności od stanowisk
 ### Wykres 7 - Zależność satysfakcji z pracy względem odejść praconików
-### Wykres 8 - Zależność liczby lat pracy w firmie (YearsAtCompany) względem odejść (attrition) Wykres ten pokaże, jak liczba lat pracy rozkłada się w grupie pracowników, którzy odeszli, w porównaniu do tych, którzy pozostali w firmie
-### **Wykres 10 - Zależność liczby lat od ostatniego awansu (YearsSinceLastPromotion) względem odejść (attrition)**
+### Wykres 8 - Zależność liczby lat pracy w firmie (YearsAtCompany) względem odejść (attrition)
+### Wykres 9 - Zależność liczby nadgodzin (OverTime) względem odejść (attrition)
+### Wykres 10 - Zależność liczby lat od ostatniego awansu (YearsSinceLastPromotion) względem odejść (attrition)
 
 ### arrition względem cech ludzi działów, 
 ### jak sie rozklada dochod satysfakcja 
