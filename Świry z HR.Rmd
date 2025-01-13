@@ -429,3 +429,4 @@ ggplot(data_percent, aes(x=Department, y=count, fill=Attrition)) +
 ### arrition względem cech ludzi działów, 
 ### jak sie rozklada dochod satysfakcja
 #działa?
+#PROSZĘ DZIAŁAJ
