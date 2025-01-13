@@ -36,6 +36,7 @@ library(DataExplorer)
 library(editrules)
 library(tidyverse)
 library(datarium)
+library(textclean)
 ```
 
 # **Etap 1. Data cleansing**
@@ -78,26 +79,6 @@ trzy zmienne, które mają braki. Są to kolejno: Age (100), MonthlyIncome
 plot_missing(tabela)
 ```
 
-#do usuniecia W celu znalezenia poszczególnych wierszy zawierającyh braki danych,
-wykorzystano funkcję rows_with_na, która przechowuje indeksy wierszy,
-które zawierają brakujące wartości. W wynikiem tej funkcji jest tabela,
-która pozbawiona jest wierszy z N/A.
-
-```{r}
-rows_with_na <- which(complete.cases(tabela))
-tabela[rows_with_na, ]
-```
-
-Dla potwierdzenia wcześniejszych analizch, zastosowano funkcję, która
-zwraca nazwy wierszy zawierające braki danych. Tak jak wyszło to we
-wcześniejszych metodach, zmiennimi z brakami są Age, Attrition oraz
-MonthlyIncome.
-
-```{r}
-cols_with_na <- which(colSums(is.na(tabela)) > 0)
-names(tabela)[cols_with_na]
-```
-
 Kolejną metodą sprawdzającą braki danych jest shadowmapa. Pokazuje ona,
 w których kolumnach znajdują się brakujące dane oraz zwraca ich liczbę.
 
@@ -117,7 +98,8 @@ vis_miss(tabela)
 Podsumowanie braków danych w formie tabeli.
 
 ```{r echo=TRUE}
-miss_var_summary(tabela)
+wybrane_kolumny <- tabela %>% select(Attrition, MonthlyIncome, Age)
+miss_var_summary(wybrane_kolumny)
 ```
 
 Wizualizacja braków danych w formie wykresu słupkowego. Poniżej
@@ -128,30 +110,6 @@ nie można tego uznać za regułę.
 
 ```{r echo=TRUE}
 gg_miss_upset(tabela)
-```
-
-Sprawdzanie czy dane zawierają inne wartości specjalne. Wykrycie
-wartości specjalnych jest koniecznym krokiem, gdyż mogłyby one wpłynąć
-na póżniejszą analizę. Funkcja ta wykazała, że w badanym pliku dane nie
-zawierają żadnych wartości specjalnych, zatem nie ma potrzebny niczego
-pod tym kątem zmieniać.
-
-#dousuniecia
-```{r echo=TRUE}
-is.special <- function(x){
-  if (is.numeric(x)) !is.finite(x) else is.na(x)
-}
-
-sapply(tabela, is.special)
-```
-
-To nie wiem o co chodziło?
-#do usuniecia
-```{r}
-for (n in colnames(tabela)){
-  is.na(tabela[[n]]) <- is.special(tabela[[n]])
-}
-summary(tabela)
 ```
 
 Kolejnym krokiem w przygotowaniu danych do ich póżniejszej analizy jest
@@ -183,6 +141,11 @@ summary(violations)
 summary(violatedEdits(RULE, tabela))
 plot(violations)
 ```
+
+```{r}
+replace_errors_with_na
+```
+
 
 Poniższy wykres przedstawia wartości odstające w badanej populacji.
 Dlaczego tutaj jest ten wykres?
@@ -408,18 +371,6 @@ ggplot(data = tabela_knn, aes(x = JobSatisfaction, fill = Attrition)) +
   theme_minimal()
 ```
 
-#te wykrey juz mamy - mysle, ze az tyle nie potrzeba bez zmiennej attrition
-
-### **Wykres 1 - Satysfakcja z pracy**
-### **Wykres 2 - Zależność wyształcenia względem zarobków**
-### **Wykres 3 - Zależność wieku względem zarobków**
-### **Wykres 4 - Zależność satysfakcji z pracy względem work-life balance**
-### **Wykres 5 - wykres zależności satysfakcji z relacji od stanu cywilnego**
-### **Wykres 6 - wykres Liczebność podróży służbowych w zależności od stanowisk**
-### **Wykres 7 - Zależność satysfakcji z pracy względem odejść praconików**
-
-#do zrobienia:
-
 ### **Wykres 8 - Zależność liczby lat pracy w firmie (YearsAtCompany) względem odejść (attrition) Wykres ten pokaże, jak liczba lat pracy rozkłada się w grupie pracowników, którzy odeszli, w porównaniu do tych, którzy pozostali w firmie **
 
 ```{r}
@@ -435,7 +386,6 @@ ggplot(data = tabela_knn, aes(x = YearsAtCompany, fill = Attrition)) +
   ) +
   theme_minimal()
 ```
-
 ### **Wykres 9 - Zależność liczby nadgodzin (OverTime) względem odejść (attrition)**
 ```{r}
 ggplot(tabela_knn, aes(x = Attrition, y = JobSatisfaction )) +
@@ -448,6 +398,33 @@ ggplot(tabela_knn, aes(x = Attrition, y = JobSatisfaction )) +
   ) +
   theme_minimal()
 ```
-### **Wykres 9 - Zależność liczby lat od ostatniego awansu (YearsSinceLastPromotion) względem odejść (attrition)**
+### **Wykres 10 - Zależność liczby lat od ostatniego awansu (YearsSinceLastPromotion) względem odejść (attrition)**
+```{r}
+ggplot(data = tabela_knn, aes(x = YearsSinceLastPromotion, fill = Attrition)) +
+  geom_histogram(binwidth = 1, position = "dodge", color = "white") +
+  facet_grid(. ~ Attrition) +
+  scale_fill_manual(values = c("skyblue", "violet")) +
+  labs(
+    title = "Zależność liczby lat od ostatniego awansu względem odejść",
+    x = "lata od ostatniego awansu",
+    y = "Liczba osób",
+    fill = "Odejście pracownika"
+  ) +
+  theme_minimal()
+```
+
+#te wykrey juz mamy - mysle, ze az tyle nie potrzeba bez zmiennej attrition
+
+### Wykres 1 - Satysfakcja z pracy
+### Wykres 2 - Zależność wyształcenia względem zarobków
+### Wykres 3 - Zależność wieku względem zarobków
+### Wykres 4 - Zależność satysfakcji z pracy względem work-life balance
+### Wykres 5 - wykres zależności satysfakcji z relacji od stanu cywilnego
+### Wykres 6 - wykres Liczebność podróży służbowych w zależności od stanowisk
+### Wykres 7 - Zależność satysfakcji z pracy względem odejść praconików
+### Wykres 8 - Zależność liczby lat pracy w firmie (YearsAtCompany) względem odejść (attrition)
+### Wykres 9 - Zależność liczby nadgodzin (OverTime) względem odejść (attrition)
+### Wykres 10 - Zależność liczby lat od ostatniego awansu (YearsSinceLastPromotion) względem odejść (attrition)
+
 ### arrition względem cech ludzi działów, 
 ### jak sie rozklada dochod satysfakcja 
