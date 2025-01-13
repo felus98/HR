@@ -36,6 +36,7 @@ library(DataExplorer)
 library(editrules)
 library(tidyverse)
 library(datarium)
+library(textclean)
 ```
 
 # **Etap 1. Data cleansing**
@@ -78,17 +79,6 @@ trzy zmienne, które mają braki. Są to kolejno: Age (100), MonthlyIncome
 plot_missing(tabela)
 ```
 
-
-Dla potwierdzenia wcześniejszych analizch, zastosowano funkcję, która
-zwraca nazwy wierszy zawierające braki danych. Tak jak wyszło to we
-wcześniejszych metodach, zmiennimi z brakami są Age, Attrition oraz
-MonthlyIncome.
-
-```{r}
-cols_with_na <- which(colSums(is.na(tabela)) > 0)
-names(tabela)[cols_with_na]
-```
-
 Kolejną metodą sprawdzającą braki danych jest shadowmapa. Pokazuje ona,
 w których kolumnach znajdują się brakujące dane oraz zwraca ich liczbę.
 
@@ -122,13 +112,6 @@ nie można tego uznać za regułę.
 gg_miss_upset(tabela)
 ```
 
-Sprawdzanie czy dane zawierają inne wartości specjalne. Wykrycie
-wartości specjalnych jest koniecznym krokiem, gdyż mogłyby one wpłynąć
-na póżniejszą analizę. Funkcja ta wykazała, że w badanym pliku dane nie
-zawierają żadnych wartości specjalnych, zatem nie ma potrzebny niczego
-pod tym kątem zmieniać.
-
-
 Kolejnym krokiem w przygotowaniu danych do ich póżniejszej analizy jest
 sprawdzenie ich spójności. Dane powinny spełniać określone przez
 analityka reguły, aby nie fałszowały późniejszych obliczeń. W tym
@@ -158,6 +141,11 @@ summary(violations)
 summary(violatedEdits(RULE, tabela))
 plot(violations)
 ```
+
+```{r}
+replace_errors_with_na
+```
+
 
 Poniższy wykres przedstawia wartości odstające w badanej populacji.
 Dlaczego tutaj jest ten wykres?
