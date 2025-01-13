@@ -78,15 +78,6 @@ trzy zmienne, które mają braki. Są to kolejno: Age (100), MonthlyIncome
 plot_missing(tabela)
 ```
 
-#do usuniecia W celu znalezenia poszczególnych wierszy zawierającyh braki danych,
-wykorzystano funkcję rows_with_na, która przechowuje indeksy wierszy,
-które zawierają brakujące wartości. W wynikiem tej funkcji jest tabela,
-która pozbawiona jest wierszy z N/A.
-
-```{r}
-rows_with_na <- which(complete.cases(tabela))
-tabela[rows_with_na, ]
-```
 
 Dla potwierdzenia wcześniejszych analizch, zastosowano funkcję, która
 zwraca nazwy wierszy zawierające braki danych. Tak jak wyszło to we
@@ -117,7 +108,8 @@ vis_miss(tabela)
 Podsumowanie braków danych w formie tabeli.
 
 ```{r echo=TRUE}
-miss_var_summary(tabela)
+wybrane_kolumny <- tabela %>% select(Attrition, MonthlyIncome, Age)
+miss_var_summary(wybrane_kolumny)
 ```
 
 Wizualizacja braków danych w formie wykresu słupkowego. Poniżej
@@ -425,7 +417,7 @@ ggplot(data = tabela_knn, aes(x = YearsSinceLastPromotion, fill = Attrition)) +
   facet_grid(. ~ Attrition) +
   scale_fill_manual(values = c("skyblue", "violet")) +
   labs(
-    title = "Zależność liczby lat pracy w firmie względem odejść",
+    title = "Zależność liczby lat od ostatniego awansu względem odejść",
     x = "lata od ostatniego awansu",
     y = "Liczba osób",
     fill = "Odejście pracownika"
