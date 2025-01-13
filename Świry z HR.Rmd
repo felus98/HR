@@ -111,6 +111,9 @@ nie można tego uznać za regułę.
 ```{r echo=TRUE}
 gg_miss_upset(tabela)
 ```
+```{r}
+tabela1 <- data.frame(tabela, row.names = TRUE)
+```
 
 Kolejnym krokiem w przygotowaniu danych do ich póżniejszej analizy jest
 sprawdzenie ich spójności. Dane powinny spełniać określone przez
@@ -143,7 +146,7 @@ plot(violations)
 ```
 
 ```{r}
-replace_errors_with_na
+tabela_corrected <- replace_errors(tabela, RULE)
 ```
 
 
@@ -175,13 +178,12 @@ cols_with_na <- which(colSums(is.na(tabela)) > 0)
 
 # **Etap 2. Data wrangling**
 
-manipulacja danymi
-#do zmiany żeby wypluwało kila rekordów 
+Manipulacja danymi
+
 ```{r}
 
 tabela_knn %>%
-  filter(Age < 45, MonthlyIncome < 5000, YearsWithCurrManager < 5)
-tabela_knn %>%
+  filter(Age < 22, MonthlyIncome < 1500, YearsWithCurrManager < 5) %>%
 select(Age, BusinessTravel, Department, Education, Gender, MonthlyIncome, YearsWithCurrManager)
   
 ```
@@ -193,21 +195,12 @@ mężczyzn niż kobiet lub że najwięcej pracowników pochodziło z działu
 badań i rozwoju.
 #zamiast tego wykresiki ile % pracuje mezczyzni kobiety, ile zrezygnowalo itd., w jakim wieku rezygnuja itd
 ```{r}
-
-tabela_knn %>%
-  arrange(MonthlyIncome)
-tabela_knn %>%
-  arrange(Age)
-tabela_knn %>%
-  count(Age)
 tabela_knn %>%
   count(Department)
 tabela_knn %>%
-  count(Education)
-tabela_knn %>%
-  count(JobLevel)
-tabela_knn %>%
   count(Gender)
+tabela_knn %>%
+  count(JobRole)
         
 ```
 
@@ -262,13 +255,13 @@ kobiety i mężczyźni w badanej populacji byli w stanie zarobić zarówno
 mało, średnio jak i uzyskać te najwyższe wartości.
 
 
-#zmienić na boxplot
+#zmienić na boxplot - gotowe, poprawic inteprretacje
 ```{r}
-  ggplot(tabela_knn, aes(x=Education, y=MonthlyIncome, color=Gender)) +
-  geom_point() +
-  geom_smooth(method="lm") + 
+ggplot(tabela_knn, aes(x=Education, y=MonthlyIncome, color=Gender)) +
+  geom_boxplot() +
+  coord_flip()+
   theme_light() +
-  theme(legend.position = c(0.15, 0.85)) +
+  theme(legend.position = c(0.85, 0.5)) +
   labs(
     title = "Zależność wykształcenia względem zarobków",
     x = "Poziom wykształcenia",
@@ -276,8 +269,10 @@ mało, średnio jak i uzyskać te najwyższe wartości.
   )
 ```
 
-### **Wykres 3 - Zależność wieku względem zarobków**
+### **Wykres 3 - Zależność wieku względem zarobków** 
 
+
+#poprawić interpretacje
 Ten punktowy wykres przedstawia zależność wieku pracownika względem jego
 zarobków. W tym przypadku logiczne założenie, że wraz z wiekiem zarobki
 powinny rosnąć jak najbardziej się sprawdza. Jak widać linia trendu jest
@@ -300,22 +295,6 @@ ggplot(tabela_knn, aes(x=Age, y=MonthlyIncome, color=Gender)) +
     title = "Zależność wieku względem zarobków",
     x = "Wiek",
     y = "Miesięczne zarobki") 
-```
-
-### **Wykres 4 - Zależność satysfakcji z pracy względem work-life balance**
-nie do końca kumam
-# wykres zależności satysfakcji z pracy od work life balance
-
-```{r}
-ggplot(data = tabela_knn, aes(x = WorkLifeBalance, y = JobSatisfaction)) +
-  geom_tile(aes(fill = after_stat(count)), stat = "bin2d") +
-  scale_fill_gradient(low = "white", high = "blue") +
-  labs(
-    title = "Zależność satysfakcji z pracy od Work-Life Balance",
-    x = "Work fife balance",
-    y = "Satysfakcja z pracy",
-    fill = "Liczba"
-  )
 ```
 
 
@@ -386,15 +365,15 @@ ggplot(data = tabela_knn, aes(x = YearsAtCompany, fill = Attrition)) +
   ) +
   theme_minimal()
 ```
-### **Wykres 9 - Zależność liczby nadgodzin (OverTime) względem odejść (attrition)**
+### **Wykres 9 - Zależność liczby stawki godzinowej (HourlyRate) względem odejść (Attrition)**
 ```{r}
-ggplot(tabela_knn, aes(x = Attrition, y = JobSatisfaction )) +
+ggplot(tabela_knn, aes(x = Attrition, y = HourlyRate )) +
   geom_boxplot() +
   coord_flip()
   labs(
     title = "Wykres pudełkowy dla zmiennej Attrition",
     x = "Attrition (Yes/No)",
-    y = "satydfakcja"
+    y = "HourlyRate"
   ) +
   theme_minimal()
 ```
@@ -412,6 +391,27 @@ ggplot(data = tabela_knn, aes(x = YearsSinceLastPromotion, fill = Attrition)) +
   ) +
   theme_minimal()
 ```
+``` {r}
+data_percent <- tabela_knn %>%
+  group_by(Department, Attrition) %>%
+  summarise(count = n()) %>%
+  group_by(Department) %>%
+  mutate(percent = count / sum(count) * 100)
+
+ggplot(data_percent, aes(x=Department, y=count, fill=Attrition)) +
+  geom_bar(stat="identity", position="dodge") +
+  geom_text(aes(label=sprintf("%.1f%%", percent)), position=position_dodge(width=0.9), vjust=-0.25) +
+  theme_light() +
+  labs(
+    title = "Zależność między rotacją a działem",
+    x = "Dział",
+    y = "Liczba osób",
+    fill = "Odejście pracownika"
+  ) +
+  theme(legend.position = c(0.85, 0.85))
+```
+
+
 
 #te wykrey juz mamy - mysle, ze az tyle nie potrzeba bez zmiennej attrition
 
@@ -427,5 +427,5 @@ ggplot(data = tabela_knn, aes(x = YearsSinceLastPromotion, fill = Attrition)) +
 ### Wykres 10 - Zależność liczby lat od ostatniego awansu (YearsSinceLastPromotion) względem odejść (attrition)
 
 ### arrition względem cech ludzi działów, 
-### jak sie rozklada dochod satysfakcja 
-# commit
+### jak sie rozklada dochod satysfakcja
+#działa?
