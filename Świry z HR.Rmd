@@ -428,3 +428,4 @@ ggplot(data = tabela_knn, aes(x = YearsSinceLastPromotion, fill = Attrition)) +
 
 ### arrition względem cech ludzi działów, 
 ### jak sie rozklada dochod satysfakcja 
+# commit
