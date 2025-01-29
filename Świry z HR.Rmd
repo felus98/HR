@@ -581,7 +581,7 @@ ggplot(tabela_knn, aes(x = OverTime, fill = Attrition)) +
 # Wpływ satysfakcji z pracy na odejścia – przeanalizowanie, jak poziom satysfakcji z pracy wpływa na odejścia.
 
 
-# ---------------wnioskowanie----------
+# ---------------Analiza Opisowa z pliku od Piotrka----------
 
 # Podstawowe statystyki opisowe dla zmiennych liczbowych
 summary(tabela_knn %>% select_if(is.numeric))
@@ -612,3 +612,16 @@ t.test(MonthlyIncome ~ OverTime, data = tabela_knn)
 ggplot(tabela_knn, aes(x = Age)) +
   geom_histogram(binwidth = 5, fill = "blue", color = "black") +
   labs(title = "Rozkład wieku pracowników", x = "Wiek", y = "Liczba pracowników")
+  
+# --- analiza opisowa z Chata
+Interpretacja wyników
+
+
+#--------------Opisowa--------
+
+# Średnia i mediana: Średnia wieku pracowników wynosi X lat, podczas gdy mediana to Y lat. To sugeruje, że rozkład wieku jest [symetryczny/lekko prawoskośny/lekko lewoskośny].
+# Odchylenie standardowe: Odchylenie standardowe dla wieku wynosi Z, co wskazuje na [duże/małe] zróżnicowanie wieku wśród pracowników.
+# Kwartyle: 25% pracowników ma wiek poniżej A lat, 50% poniżej B lat, a 75% poniżej C lat.
+# Liczność kategorii: W firmie pracuje więcej mężczyzn niż kobiet (X mężczyzn vs Y kobiet).
+# Korelacje: Istnieje silna dodatnia korelacja między wiekiem a zarobkami (r = 0.7), co sugeruje, że starsi pracownicy zarabiają więcej.
+
