@@ -447,26 +447,65 @@ print(categorical_summary)
 # Liczba unikalnych wartości w zmiennych kategorycznych
 tabela_knn %>% select_if(is.character) %>% summarise_all(~ n_distinct(.))
 
-# Korelacje między zmiennymi liczbowymi
-cor_matrix <- cor(tabela_knn %>% select_if(is.numeric))
-ggcorrplot(cor_matrix, type = "lower", lab = TRUE)
-
-# Porównanie średnich miesięcznych zarobków względem nadgodzin
-tabela_knn %>%
-  group_by(OverTime) %>%
-  summarise(Mean_MonthlyIncome = mean(MonthlyIncome))
-
-t.test(MonthlyIncome ~ OverTime, data = tabela_knn)
-
-# Wizualizacja rozkładu wieku pracowników
+# spytać chat jak to dopasować do naszych danych
+```{r tai, echo=FALSE}
+kbl(tabela_knn,caption = "Mieszkania we Wrocławiu - ceny w kPLN") %>%
+    kable_material(c("striped", "hover"))
+tab1<-classIntervals(mieszkania$price_PLN,n=10,style="fixed",fixedBreaks=seq(350000,1350000,by=100000))
+jenks.tests(tab1)
+```
+# Macierz korelacji
+numerical_columns <- tabela_knn %>% select(where(is.numeric))
+corr_matrix <- cor(numerical_columns, use = "complete.obs")
+corrplot(corr_matrix, method = "color", type = "upper")
+ 
+# Konwersja typów zmiennych
+tabela_knn$Attrition <- as.factor(tabela_knn$Attrition)
+tabela_knn$BusinessTravel <- as.factor(tabela_knn$BusinessTravel)
+tabela_knn$Department <- as.factor(tabela_knn$Department)
+tabela_knn$EducationField <- as.factor(tabela_knn$EducationField)
+tabela_knn$Gender <- as.factor(tabela_knn$Gender)
+tabela_knn$JobRole <- as.factor(tabela_knn$JobRole)
+tabela_knn$MaritalStatus <- as.factor(tabela_knn$MaritalStatus)
+tabela_knn$OverTime <- as.factor(tabela_knn$OverTime)
+ 
+# Analiza opisowa podstawowych zmiennych
+summary(tabela_knn)
+ 
+# Histogram dla wieku
 ggplot(tabela_knn, aes(x = Age)) +
-  geom_histogram(binwidth = 5, fill = "blue", color = "black") +
-  labs(title = "Rozkład wieku pracowników", x = "Wiek", y = "Liczba pracowników")
+  geom_histogram(bins = 20, fill = "blue", alpha = 0.7) +
+  ggtitle("Rozkład wieku pracowników") +
+  xlab("Wiek") +
+  ylab("Liczba pracowników")
+ 
+# Boxplot dla wynagrodzenia miesięcznego
+ggplot(tabela_knn, aes(x = Attrition, y = MonthlyIncome, fill = Attrition)) +
+  geom_boxplot() +
+  ggtitle("Porównanie wynagrodzenia miesięcznego") +
+  xlab("Odejście") +
+  ylab("Wynagrodzenie miesięczne")
+ 
+# Macierz korelacji
+numerical_columns <- tabela_knn %>% select(where(is.numeric))
+corr_matrix <- cor(numerical_columns, use = "complete.obs")
+corrplot(corr_matrix, method = "color", type = "upper")
+ 
+# Podstawowe statystyki dla wynagrodzenia miesięcznego według stanowiska
+tabela_knn %>% 
+  group_by(JobRole) %>% 
+  summarise(
+    Min = min(MonthlyIncome, na.rm = TRUE),
+    Max = max(MonthlyIncome, na.rm = TRUE),
+    Srednia = mean(MonthlyIncome, na.rm = TRUE),
+    Mediana = median(MonthlyIncome, na.rm = TRUE),
+    Odch_Std = sd(MonthlyIncome, na.rm = TRUE)
+  ) %>%
+  kable() %>%
+  kable_paper("striped", full_width = F)
   
 # --- analiza opisowa z Chata
 Interpretacja wyników
-#--------------Opisowa--------
-
 # Średnia i mediana: Średnia wieku pracowników wynosi X lat, podczas gdy mediana to Y lat. To sugeruje, że rozkład wieku jest [symetryczny/lekko prawoskośny/lekko lewoskośny].
 # Odchylenie standardowe: Odchylenie standardowe dla wieku wynosi Z, co wskazuje na [duże/małe] zróżnicowanie wieku wśród pracowników.
 # Kwartyle: 25% pracowników ma wiek poniżej A lat, 50% poniżej B lat, a 75% poniżej C lat.
