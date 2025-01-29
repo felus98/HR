@@ -37,6 +37,7 @@ library(editrules)
 library(tidyverse)
 library(datarium)
 library(textclean)
+library(mice)
 ```
 
 # **Etap 1. Data cleansing**
@@ -111,9 +112,6 @@ nie można tego uznać za regułę.
 ```{r echo=TRUE}
 gg_miss_upset(tabela)
 ```
-```{r}
-tabela1 <- data.frame(tabela, row.names = TRUE)
-```
 
 Kolejnym krokiem w przygotowaniu danych do ich póżniejszej analizy jest
 sprawdzenie ich spójności. Dane powinny spełniać określone przez
@@ -144,18 +142,14 @@ summary(violations)
 summary(violatedEdits(RULE, tabela))
 plot(violations)
 ```
-
 ```{r}
-tabela_corrected <- replace_errors(tabela, RULE)
-```
-
-
-Poniższy wykres przedstawia wartości odstające w badanej populacji.
-Dlaczego tutaj jest ten wykres?
-
-```{r}
-boxplot(tabela$Age)
-boxplot(tabela$MonthlyIncome)
+for (i in 1:nrow(violations)) {
+  for (j in 1:ncol(violations)) {
+    if (!is.na(violations[i, j]) && violations[i, j]) {
+      dane[i, colnames(violations)[j]] <- NA
+    }
+  }
+}
 ```
 
 Wypełnianie braków danych\*\* W tym etapie projektu wypełniliśmy braki
@@ -163,17 +157,20 @@ danych.
 
 Wypełnienie braków danych - wszystkich wartosci
 
+
+# powyzsza metoda wypelnila wszystkie brakujace dane i sprwadza czy dane zostały uzupełnione
+
 ```{r}
-tabela_knn <- kNN(tabela)
-Age_kNN <- tabela_knn$Age
+tabela_knn <- kNN(tabela, k = 5)
+sum(is.na(tabela_knn))
 ```
 
-# powyzsza metoda wypelnila wszystkie brakujace dane
-
-sprawdzenie raz jeszcze czy napewno wszystkie dane zostaly uzupelnione
+Poniższy wykres przedstawia wartości odstające w badanej populacji.
+Dlaczego tutaj jest ten wykres?
 
 ```{r}
-cols_with_na <- which(colSums(is.na(tabela)) > 0)
+boxplot(tabela$Age)
+boxplot(tabela$MonthlyIncome)
 ```
 
 # **Etap 2. Data wrangling**
@@ -428,5 +425,3 @@ ggplot(data_percent, aes(x=Department, y=count, fill=Attrition)) +
 
 ### arrition względem cech ludzi działów, 
 ### jak sie rozklada dochod satysfakcja
-#działa?
-#PROSZĘ DZIAŁAJ
