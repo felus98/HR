@@ -38,6 +38,16 @@ library(tidyverse)
 library(datarium)
 library(textclean)
 library(mice)
+install.packages("readr")
+install.packages("dplyr")
+install.packages("psych")
+install.packages("ggcorrplot")
+install.packages("reshape2")
+library(readr)
+library(dplyr)
+library(psych)
+library(ggcorrplot)
+library(reshape2)
 ```
 
 # **Etap 1. Data cleansing**
@@ -388,6 +398,8 @@ ggplot(data = tabela_knn, aes(x = YearsSinceLastPromotion, fill = Attrition)) +
   ) +
   theme_minimal()
 ```
+# Wykres 11 - Korelacja rotacji pomiedzy dzialami(Department) a odejscia z pracy (Atrittion)
+
 ``` {r}
 data_percent <- tabela_knn %>%
   group_by(Department, Attrition) %>%
@@ -400,17 +412,57 @@ ggplot(data_percent, aes(x=Department, y=count, fill=Attrition)) +
   geom_text(aes(label=sprintf("%.1f%%", percent)), position=position_dodge(width=0.9), vjust=-0.25) +
   theme_light() +
   labs(
-    title = "Zależność między rotacją a działem",
+    title = "Zależność rotacji pracownikow pomiedzy dzialami a odejscia z pracy",
     x = "Dział",
     y = "Liczba osób",
     fill = "Odejście pracownika"
   ) +
   theme(legend.position = c(0.85, 0.85))
 ```
+# Wykres 12 - 
+
+```{r}
+ggplot(data = tabela_knn, aes(x = YearsSinceLastPromotion, fill = Attrition)) +
+  geom_histogram(binwidth = 1, position = "dodge", color = "white") +
+  facet_grid(. ~ Attrition) +
+  scale_fill_manual(values = c("skyblue", "violet")) +
+  labs(
+    title = "Zależność liczby lat od ostatniego awansu względem odejść",
+    x = "lata od ostatniego awansu",
+    y = "Liczba osób",
+    fill = "Odejście pracownika"
+  ) +
+  theme_minimal()
+```
+# Wykres 11 - Korelacja rotacji pomiedzy dzialami(Department) a odejscia z pracy (Atrittion)
+
+``` {r}
+# Konwersja zmiennej 'Attrition' do wartości binarnych (1 = "Yes", 0 = "No")
+tabela_knn$Attrition_bin <- ifelse(tabela_knn$Attrition == "Yes", 1, 0)
+
+# Wybór interesujących zmiennych
+selected_vars <- tabela_knn[, c("Age", "MonthlyIncome", "JobSatisfaction", "YearsAtCompany", "Attrition_bin")]
+
+# Obliczanie macierzy korelacji
+cor_matrix <- cor(selected_vars, use = "complete.obs")
+
+# Tworzenie heatmapy przy użyciu ggplot2
+melted_cor_matrix <- melt(cor_matrix)
+
+# Generowanie heatmapy
+ggplot(data = melted_cor_matrix, aes(x = Var1, y = Var2, fill = value)) + 
+  geom_tile(color = "white") +
+  scale_fill_gradient2(low = "blue", high = "red", mid = "snow2", midpoint = 0, limit = c(-1,1), space = "Lab", name="Korelacja") +
+  theme_minimal() + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  coord_fixed() +
+  labs(title = "Heatmapa korelacji wybranych zmiennych", x = "", y = "")
+```
 
 
 
-#te wykrey juz mamy - mysle, ze az tyle nie potrzeba bez zmiennej attrition
+
+#te wykresy juz mamy - mysle, ze az tyle nie potrzeba bez zmiennej attrition
 
 ### Wykres 1 - Satysfakcja z pracy
 ### Wykres 2 - Zależność wyształcenia względem zarobków
@@ -422,7 +474,45 @@ ggplot(data_percent, aes(x=Department, y=count, fill=Attrition)) +
 ### Wykres 8 - Zależność liczby lat pracy w firmie (YearsAtCompany) względem odejść (attrition)
 ### Wykres 9 - Zależność liczby nadgodzin (OverTime) względem odejść (attrition)
 ### Wykres 10 - Zależność liczby lat od ostatniego awansu (YearsSinceLastPromotion) względem odejść (attrition)
+### Wykres 11 - Korelacja rotacji pomiedzy dzialami(Department) a odejscia z pracy (Atrittion)
+
+# Rozkład odejść w zależności od demografii – przegląd odejść z podziałem na płeć, wiek, itp.
+	2.	Analiza nadgodzin a odejścia – sprawdzenie, jak nadgodziny wpływają na decyzję o odejściu.
+	3.	Wpływ satysfakcji z pracy na odejścia – przeanalizowanie, jak poziom satysfakcji z pracy wpływa na odejścia.
+
 
 ### arrition względem cech ludzi działów, 
 ### jak sie rozklada dochod satysfakcja
 # dzisiaj po pracy bedę klikać
+
+
+# ---------------
+# Podstawowe statystyki opisowe dla zmiennych liczbowych
+summary(tabela_knn %>% select_if(is.numeric))
+describe(tabela_knn %>% select_if(is.numeric))
+
+# Liczność kategorii w zmiennych kategorycznych
+categorical_summary <- tabela_knn %>%
+  select_if(is.character) %>%
+  summarise_all(~list(table(.)))
+
+print(categorical_summary)
+
+# Liczba unikalnych wartości w zmiennych kategorycznych
+tabela_knn %>% select_if(is.character) %>% summarise_all(~ n_distinct(.))
+
+# Korelacje między zmiennymi liczbowymi
+cor_matrix <- cor(tabela_knn %>% select_if(is.numeric))
+ggcorrplot(cor_matrix, type = "lower", lab = TRUE)
+
+# Porównanie średnich miesięcznych zarobków względem nadgodzin
+tabela_knn %>%
+  group_by(OverTime) %>%
+  summarise(Mean_MonthlyIncome = mean(MonthlyIncome))
+
+t.test(MonthlyIncome ~ OverTime, data = tabela_knn)
+
+# Wizualizacja rozkładu wieku pracowników
+ggplot(tabela_knn, aes(x = Age)) +
+  geom_histogram(binwidth = 5, fill = "blue", color = "black") +
+  labs(title = "Rozkład wieku pracowników", x = "Wiek", y = "Liczba pracowników")
