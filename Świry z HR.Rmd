@@ -261,25 +261,8 @@ Widać również, że płeć nie ma specjalnego wpływu na zarobki. Zarówno
 kobiety i mężczyźni w badanej populacji byli w stanie zarobić zarówno
 mało, średnio jak i uzyskać te najwyższe wartości.
 
-
-#zmienić na boxplot - gotowe, poprawic inteprretacje
-```{r}
-ggplot(tabela_knn, aes(x=Education, y=MonthlyIncome, color=Gender)) +
-  geom_boxplot() +
-  coord_flip()+
-  theme_light() +
-  theme(legend.position = c(0.85, 0.5)) +
-  labs(
-    title = "Zależność wykształcenia względem zarobków",
-    x = "Poziom wykształcenia",
-    y = "Miesięczne zarobki"
-  )
-```
-
 ### **Wykres 3 - Zależność wieku względem zarobków** 
 
-
-#poprawić interpretacje
 Ten punktowy wykres przedstawia zależność wieku pracownika względem jego
 zarobków. W tym przypadku logiczne założenie, że wraz z wiekiem zarobki
 powinny rosnąć jak najbardziej się sprawdza. Jak widać linia trendu jest
@@ -290,8 +273,6 @@ podzielono względem płci. Linie trednu praktycznie się na siebie
 nakładają, co wskazuje na to, że płeć nie ma zbytniego wpływu na zarobki
 względem wieku - liczy się doświadczenie.
 
-
-#attrition kolorami można też dodać na innym wykresie
 ```{r}
 ggplot(tabela_knn, aes(x=Age, y=MonthlyIncome, color=Gender)) +
   geom_point() +
@@ -302,41 +283,6 @@ ggplot(tabela_knn, aes(x=Age, y=MonthlyIncome, color=Gender)) +
     title = "Zależność wieku względem zarobków",
     x = "Wiek",
     y = "Miesięczne zarobki") 
-```
-
-
-### **Wykres 5 - wykres zależności satysfakcji z relacji od stanu cywilnego**
-
-```{r}
-ggplot(data = tabela_knn, aes(x = RelationshipSatisfaction, fill = MaritalStatus)) +
-  geom_histogram(binwidth = 1, position = "dodge", color = "black") +
-  facet_grid(. ~ MaritalStatus) +
-  scale_fill_manual(values = c("skyblue", "orange", "purple")) +
-  labs(
-    title = "Rozkład satysfakcji w zależności od stanu cywilnego",
-    x = "Satysfakcja z relacji",
-    y = "Liczba osób",
-    fill = "Stan cywilny"
-  ) +
-  theme_minimal()
-```
-
-### **Wykres 6 - wykres Liczebność podróży służbowych w zależności od stanowisk**
-
-```{r}
-heatmap_data <- as.data.frame(table(tabela_knn$JobRole, tabela_knn$BusinessTravel))
-colnames(heatmap_data) <- c("JobRole", "BusinessTravel", "Count")
-ggplot(data = heatmap_data, aes(x = JobRole, y = BusinessTravel, fill = Count)) +
-  geom_tile(color = "white") +
-  scale_fill_gradient(low = "white", high = "orange") +
-  labs(
-    title = "Liczebność podróży służbowych w zależności od stanowiska",
-    x = "Stanowisko pracy",
-    y = "Podróże służbowe",
-    fill = "Liczba osób"
-  ) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 ### **Wykres 7 - Zależność satysfakcji z pracy względem odejść praconików**
 
@@ -385,6 +331,9 @@ ggplot(tabela_knn, aes(x = Attrition, y = HourlyRate )) +
   theme_minimal()
 ```
 ### **Wykres 10 - Zależność liczby lat od ostatniego awansu (YearsSinceLastPromotion) względem odejść (attrition)**
+?
+?
+?
 ```{r}
 ggplot(data = tabela_knn, aes(x = YearsSinceLastPromotion, fill = Attrition)) +
   geom_histogram(binwidth = 1, position = "dodge", color = "white") +
@@ -399,7 +348,9 @@ ggplot(data = tabela_knn, aes(x = YearsSinceLastPromotion, fill = Attrition)) +
   theme_minimal()
 ```
 # Wykres 11 - Korelacja rotacji pomiedzy dzialami(Department) a odejscia z pracy (Atrittion)
-
+?
+?
+?
 ``` {r}
 data_percent <- tabela_knn %>%
   group_by(Department, Attrition) %>%
@@ -419,49 +370,7 @@ ggplot(data_percent, aes(x=Department, y=count, fill=Attrition)) +
   ) +
   theme(legend.position = c(0.85, 0.85))
 ```
-# Wykres 12 - Zależność liczby lat od ostatniego awansu względem odejść
-
-```{r}
-ggplot(data = tabela_knn, aes(x = YearsSinceLastPromotion, fill = Attrition)) +
-  geom_histogram(binwidth = 1, position = "dodge", color = "white") +
-  facet_grid(. ~ Attrition) +
-  scale_fill_manual(values = c("skyblue", "violet")) +
-  labs(
-    title = "Zależność liczby lat od ostatniego awansu względem odejść",
-    x = "lata od ostatniego awansu",
-    y = "Liczba osób",
-    fill = "Odejście pracownika"
-  ) +
-  theme_minimal()
-```
-# Heatmapa - Heatmapa korelacji zmiennych z odejściami pracowników
-
-``` {r}
-# Konwersja zmiennej 'Attrition' do wartości binarnych (1 = "Yes", 0 = "No")
-tabela_knn$Attrition_bin <- ifelse(tabela_knn$Attrition == "Yes", 1, 0)
-
-# Wybór interesujących zmiennych
-selected_vars <- tabela_knn[, c("Age", "MonthlyIncome", "JobSatisfaction", "YearsAtCompany", "Attrition_bin")]
-
-# Obliczanie macierzy korelacji
-cor_matrix <- cor(selected_vars, use = "complete.obs")
-
-# Tworzenie heatmapy przy użyciu ggplot2
-melted_cor_matrix <- melt(cor_matrix)
-
-# Generowanie heatmapy
-ggplot(data = melted_cor_matrix, aes(x = Var1, y = Var2, fill = value)) + 
-  geom_tile(color = "white") +
-  scale_fill_gradient2(low = "blue", high = "red", mid = "snow2", midpoint = 0, limit = c(-1,1), space = "Lab", name="Korelacja") +
-  theme_minimal() + 
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
-  coord_fixed() +
-  labs(title = "Heatmapa korelacji wybranych zmiennych", x = "", y = "")
-```
-
 # Heatmapa - wersja 2 Heatmapa korelacji zmiennych z odejściami pracowników
-
-
 ```{r}
 # Tworzenie zmiennej binarnej dla Attrition
 tabela_knn$Attrition_bin <- ifelse(tabela_knn$Attrition == "Yes", 1, 0)
@@ -488,6 +397,7 @@ ggplot(data = melted_cor_matrix, aes(x = Var1, y = Var2, fill = value)) +
   coord_fixed()
 ```
 # Rozklad - odejscia wgledem plci (Gender), wieku (Age), i stanu cywilnego (MaritialStatus)
+# sprawdzić czy coś się nie powtarza
 ```{r}
 # Tworzenie zmiennej binarnej dla Attrition (1 = Yes, 0 = No)
 tabela_knn$Attrition_bin <- ifelse(tabela_knn$Attrition == "Yes", 1, 0)
@@ -499,13 +409,6 @@ ggplot(tabela_knn, aes(x = Gender, fill = Attrition)) +
   scale_fill_manual(values = c("No" = "lightblue", "Yes" = "darkred"), name = "Attrition") +
   theme_minimal()
 
-# 2. Rozkład odejść w zależności od wieku (Age)
-ggplot(tabela_knn, aes(x = Age, fill = Attrition)) +
-  geom_density(alpha = 0.5) +
-  labs(title = "Rozkład odejść w zależności od wieku", x = "Wiek", y = "Gęstość") +
-  scale_fill_manual(values = c("No" = "lightblue", "Yes" = "darkred"), name = "Attrition") +
-  theme_minimal()
-
 # 3. Rozkład odejść w zależności od stanu cywilnego (MaritalStatus)
 ggplot(tabela_knn, aes(x = MaritalStatus, fill = Attrition)) +
   geom_bar(position = "fill") +
@@ -513,26 +416,11 @@ ggplot(tabela_knn, aes(x = MaritalStatus, fill = Attrition)) +
   scale_fill_manual(values = c("No" = "lightblue", "Yes" = "darkred"), name = "Attrition") +
   theme_minimal()
 
-# 4. Rozkład odejść według działów (Department)
-ggplot(tabela_knn, aes(x = Department, fill = Attrition)) +
-  geom_bar(position = "fill") +
-  labs(title = "Rozkład odejść w zależności od działu", y = "Proporcja", x = "Dział") +
-  scale_fill_manual(values = c("No" = "lightblue", "Yes" = "darkred"), name = "Attrition") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
 # 5. Wpływ wynagrodzenia (MonthlyIncome) na odejścia
 ggplot(tabela_knn, aes(x = MonthlyIncome, fill = Attrition)) +
   geom_density(alpha = 0.5) +
   labs(title = "Wpływ wynagrodzenia na odejścia", x = "Miesięczne wynagrodzenie", y = "Gęstość") +
   scale_fill_manual(values = c("No" = "lightblue", "Yes" = "darkred"), name = "Attrition") +
-  theme_minimal()
-
-# 6. Heatmapa odejść w zależności od lat pracy i wynagrodzenia
-ggplot(tabela_knn, aes(x = YearsAtCompany, y = MonthlyIncome, fill = Attrition)) +
-  geom_tile() +
-  labs(title = "Odejścia w zależności od lat pracy i wynagrodzenia", x = "Lata pracy", y = "Miesięczne wynagrodzenie") +
-  scale_fill_manual(values = c("No" = "skyblue3", "Yes" = "red"), name = "Attrition") +
   theme_minimal()
 
 # 7. Odejścia w zależności od liczby godzin pracy (OverTime)
@@ -543,44 +431,6 @@ ggplot(tabela_knn, aes(x = OverTime, fill = Attrition)) +
   theme_minimal()
 
 ```
-
-```{r}
-
-```
-
-
-#te wykresy juz mamy - mysle, ze az tyle nie potrzeba bez zmiennej attrition
-
-### Wykres 1 - Satysfakcja z pracy
-### Wykres 2 - Zależność wyształcenia względem zarobków
-### Wykres 3 - Zależność wieku względem zarobków
-### Wykres 4 - Zależność satysfakcji z pracy względem work-life balance
-### Wykres 5 - wykres zależności satysfakcji z relacji od stanu cywilnego
-### Wykres 6 - wykres Liczebność podróży służbowych w zależności od stanowisk
-### Wykres 7 - Zależność satysfakcji z pracy względem odejść praconików
-### Wykres 8 - Zależność liczby lat pracy w firmie (YearsAtCompany) względem odejść (attrition)
-### Wykres 9 - Zależność liczby nadgodzin (OverTime) względem odejść (attrition)
-### Wykres 10 - Zależność liczby lat od ostatniego awansu (YearsSinceLastPromotion) względem odejść (attrition)
-### Wykres 11 - Korelacja rotacji pomiedzy dzialami(Department) a odejscia z pracy (Atrittion)
-# Wykres 12 - Zależność liczby lat od ostatniego awansu względem odejść
-# Heatmapa korelacji zmiennych z odejściami pracowników
-# Heatmapa - wersja 2 korelacji zmiennych z odejściami pracowników
-# Rozklad - odejscia wgledem plci (Gender), wieku (Age), i stanu cywilnego (MaritialStatus)
-# 1. Rozkład odejść w zależności od płci (Gender)
-# 2. Rozkład odejść w zależności od wieku (Age)
-# 3. Rozkład odejść w zależności od stanu cywilnego (MaritalStatus)
-# 4. Rozkład odejść według działów (Department)
-# 5. Wpływ wynagrodzenia (MonthlyIncome) na odejścia
-# 6. Heatmapa odejść w zależności od lat pracy i wynagrodzenia
-# 7. Odejścia w zależności od liczby godzin pracy (OverTime)
-
-
-# zrobic?
-# Rozkład odejść w zależności od demografii – przegląd odejść z podziałem na płeć, wiek, itp.
-# Analiza nadgodzin a odejścia – sprawdzenie, jak nadgodziny wpływają na decyzję o odejściu.
-# Wpływ satysfakcji z pracy na odejścia – przeanalizowanie, jak poziom satysfakcji z pracy wpływa na odejścia.
-
-
 # ---------------Analiza Opisowa z pliku od Piotrka----------
 
 # Podstawowe statystyki opisowe dla zmiennych liczbowych
@@ -615,8 +465,6 @@ ggplot(tabela_knn, aes(x = Age)) +
   
 # --- analiza opisowa z Chata
 Interpretacja wyników
-
-
 #--------------Opisowa--------
 
 # Średnia i mediana: Średnia wieku pracowników wynosi X lat, podczas gdy mediana to Y lat. To sugeruje, że rozkład wieku jest [symetryczny/lekko prawoskośny/lekko lewoskośny].
