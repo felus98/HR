@@ -419,7 +419,7 @@ ggplot(data_percent, aes(x=Department, y=count, fill=Attrition)) +
   ) +
   theme(legend.position = c(0.85, 0.85))
 ```
-# Wykres 12 - 
+# Wykres 12 - Zależność liczby lat od ostatniego awansu względem odejść
 
 ```{r}
 ggplot(data = tabela_knn, aes(x = YearsSinceLastPromotion, fill = Attrition)) +
@@ -434,7 +434,7 @@ ggplot(data = tabela_knn, aes(x = YearsSinceLastPromotion, fill = Attrition)) +
   ) +
   theme_minimal()
 ```
-# Wykres 11 - Korelacja rotacji pomiedzy dzialami(Department) a odejscia z pracy (Atrittion)
+# Heatmapa - Heatmapa korelacji zmiennych z odejściami pracowników
 
 ``` {r}
 # Konwersja zmiennej 'Attrition' do wartości binarnych (1 = "Yes", 0 = "No")
@@ -459,7 +459,94 @@ ggplot(data = melted_cor_matrix, aes(x = Var1, y = Var2, fill = value)) +
   labs(title = "Heatmapa korelacji wybranych zmiennych", x = "", y = "")
 ```
 
+# Heatmapa - wersja 2 Heatmapa korelacji zmiennych z odejściami pracowników
 
+
+```{r}
+# Tworzenie zmiennej binarnej dla Attrition
+tabela_knn$Attrition_bin <- ifelse(tabela_knn$Attrition == "Yes", 1, 0)
+
+# Wybrane zmienne do analizy
+selected_vars <- tabela_knn[, c("Age", "MonthlyIncome", "JobSatisfaction", "YearsAtCompany", "Attrition_bin")]
+
+# Obliczenie macierzy korelacji
+cor_matrix <- cor(selected_vars, use = "complete.obs")
+
+# Zamiana macierzy korelacji na procenty
+cor_matrix_percent <- cor_matrix * 100
+
+# Przekształcenie macierzy do formatu długiego
+melted_cor_matrix <- melt(cor_matrix_percent)
+
+# Tworzenie heatmapy z wartościami procentowymi
+ggplot(data = melted_cor_matrix, aes(x = Var1, y = Var2, fill = value)) + 
+  geom_tile(color = "white") +
+  scale_fill_gradient2(low = "darkblue", high = "darkred", mid = "white", midpoint = 0, limit = c(-100, 100), space = "Lab", name="Korelacja (%)") +
+  geom_text(aes(label = sprintf("%.1f%%", value)), color = "black", size = 4) +  # Dodanie etykiet procentowych
+  theme_minimal() + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  coord_fixed()
+```
+# Rozklad - odejscia wgledem plci (Gender), wieku (Age), i stanu cywilnego (MaritialStatus)
+```{r}
+# Tworzenie zmiennej binarnej dla Attrition (1 = Yes, 0 = No)
+tabela_knn$Attrition_bin <- ifelse(tabela_knn$Attrition == "Yes", 1, 0)
+
+# 1. Rozkład odejść w zależności od płci (Gender)
+ggplot(tabela_knn, aes(x = Gender, fill = Attrition)) +
+  geom_bar(position = "fill") +
+  labs(title = "Rozkład odejść w zależności od płci", y = "Proporcja", x = "Płeć") +
+  scale_fill_manual(values = c("No" = "lightblue", "Yes" = "darkred"), name = "Attrition") +
+  theme_minimal()
+
+# 2. Rozkład odejść w zależności od wieku (Age)
+ggplot(tabela_knn, aes(x = Age, fill = Attrition)) +
+  geom_density(alpha = 0.5) +
+  labs(title = "Rozkład odejść w zależności od wieku", x = "Wiek", y = "Gęstość") +
+  scale_fill_manual(values = c("No" = "lightblue", "Yes" = "darkred"), name = "Attrition") +
+  theme_minimal()
+
+# 3. Rozkład odejść w zależności od stanu cywilnego (MaritalStatus)
+ggplot(tabela_knn, aes(x = MaritalStatus, fill = Attrition)) +
+  geom_bar(position = "fill") +
+  labs(title = "Rozkład odejść w zależności od stanu cywilnego", y = "Proporcja", x = "Stan cywilny") +
+  scale_fill_manual(values = c("No" = "lightblue", "Yes" = "darkred"), name = "Attrition") +
+  theme_minimal()
+
+# 4. Rozkład odejść według działów (Department)
+ggplot(tabela_knn, aes(x = Department, fill = Attrition)) +
+  geom_bar(position = "fill") +
+  labs(title = "Rozkład odejść w zależności od działu", y = "Proporcja", x = "Dział") +
+  scale_fill_manual(values = c("No" = "lightblue", "Yes" = "darkred"), name = "Attrition") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# 5. Wpływ wynagrodzenia (MonthlyIncome) na odejścia
+ggplot(tabela_knn, aes(x = MonthlyIncome, fill = Attrition)) +
+  geom_density(alpha = 0.5) +
+  labs(title = "Wpływ wynagrodzenia na odejścia", x = "Miesięczne wynagrodzenie", y = "Gęstość") +
+  scale_fill_manual(values = c("No" = "lightblue", "Yes" = "darkred"), name = "Attrition") +
+  theme_minimal()
+
+# 6. Heatmapa odejść w zależności od lat pracy i wynagrodzenia
+ggplot(tabela_knn, aes(x = YearsAtCompany, y = MonthlyIncome, fill = Attrition)) +
+  geom_tile() +
+  labs(title = "Odejścia w zależności od lat pracy i wynagrodzenia", x = "Lata pracy", y = "Miesięczne wynagrodzenie") +
+  scale_fill_manual(values = c("No" = "skyblue3", "Yes" = "red"), name = "Attrition") +
+  theme_minimal()
+
+# 7. Odejścia w zależności od liczby godzin pracy (OverTime)
+ggplot(tabela_knn, aes(x = OverTime, fill = Attrition)) +
+  geom_bar(position = "fill") +
+  labs(title = "Odejścia a nadgodziny", y = "Proporcja", x = "Nadgodziny") +
+  scale_fill_manual(values = c("No" = "lightblue", "Yes" = "darkred"), name = "Attrition") +
+  theme_minimal()
+
+```
+
+```{r}
+
+```
 
 
 #te wykresy juz mamy - mysle, ze az tyle nie potrzeba bez zmiennej attrition
@@ -475,18 +562,27 @@ ggplot(data = melted_cor_matrix, aes(x = Var1, y = Var2, fill = value)) +
 ### Wykres 9 - Zależność liczby nadgodzin (OverTime) względem odejść (attrition)
 ### Wykres 10 - Zależność liczby lat od ostatniego awansu (YearsSinceLastPromotion) względem odejść (attrition)
 ### Wykres 11 - Korelacja rotacji pomiedzy dzialami(Department) a odejscia z pracy (Atrittion)
+# Wykres 12 - Zależność liczby lat od ostatniego awansu względem odejść
+# Heatmapa korelacji zmiennych z odejściami pracowników
+# Heatmapa - wersja 2 korelacji zmiennych z odejściami pracowników
+# Rozklad - odejscia wgledem plci (Gender), wieku (Age), i stanu cywilnego (MaritialStatus)
+# 1. Rozkład odejść w zależności od płci (Gender)
+# 2. Rozkład odejść w zależności od wieku (Age)
+# 3. Rozkład odejść w zależności od stanu cywilnego (MaritalStatus)
+# 4. Rozkład odejść według działów (Department)
+# 5. Wpływ wynagrodzenia (MonthlyIncome) na odejścia
+# 6. Heatmapa odejść w zależności od lat pracy i wynagrodzenia
+# 7. Odejścia w zależności od liczby godzin pracy (OverTime)
 
+
+# zrobic?
 # Rozkład odejść w zależności od demografii – przegląd odejść z podziałem na płeć, wiek, itp.
-	2.	Analiza nadgodzin a odejścia – sprawdzenie, jak nadgodziny wpływają na decyzję o odejściu.
-	3.	Wpływ satysfakcji z pracy na odejścia – przeanalizowanie, jak poziom satysfakcji z pracy wpływa na odejścia.
+# Analiza nadgodzin a odejścia – sprawdzenie, jak nadgodziny wpływają na decyzję o odejściu.
+# Wpływ satysfakcji z pracy na odejścia – przeanalizowanie, jak poziom satysfakcji z pracy wpływa na odejścia.
 
 
-### arrition względem cech ludzi działów, 
-### jak sie rozklada dochod satysfakcja
-# dzisiaj po pracy bedę klikać
+# ---------------wnioskowanie----------
 
-
-# ---------------
 # Podstawowe statystyki opisowe dla zmiennych liczbowych
 summary(tabela_knn %>% select_if(is.numeric))
 describe(tabela_knn %>% select_if(is.numeric))
