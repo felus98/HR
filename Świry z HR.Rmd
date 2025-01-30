@@ -13,11 +13,22 @@ editor_options:
 
 # **Projekt HR**
 
+# **Wstęp**
+
 Poniższy projekt przedstawia analizę danych opartą na danych
-zawierających... Projekt zawiera się w czeterech głównych etapach: 1.
-Data cleansing, Wrangling, 2. Wizualizacja danych, 3. Analiza opisowa,
-4. Wnioskowanie. Celem projektu jest wykonanie analizy, opartej na
-przygotowanym zbiorze danych.
+zawierających informacje dotyczące pracowników pewnej firmy oraz. Główną
+zmienną, której dotyczy analiza to attrition, czyli rezygnowanie z
+pracy. Analiza opiera się na zbadaniu motywacji, przyczyn, zależności
+pomiędzy odchodzeniem z pracy a innymi zmiennymi.
+
+Powstawić można hipotezę badawczą - **co wpływa na odchodzenie z pracy
+przez pracowników?**
+
+Projekt zawiera się w czeterech głównych etapach: 1. Data cleansing,
+Wrangling, 2. Wizualizacja danych, 3. Analiza opisowa, 4. Wnioskowanie.
+
+Celem projektu jest wykonanie analizy skupiając się na zmiennej
+'attrition', opartej na przygotowanym zbiorze danych.
 
 ### *Wczytanie bibliotek*
 
@@ -51,6 +62,16 @@ library(reshape2)
 ```
 
 # **Etap 1. Data cleansing**
+
+### **Wstęp**
+
+W procesie analizy danych kluczowym etapem jest ich oczyszczenie, aby
+zapewnić poprawność i spójność zbioru. W pierwszej kolejności sprawdzono
+kompletność danych, identyfikując brakujące wartości oraz analizując ich
+rozkład za pomocą wykresów i podsumowań statystycznych. Następnie
+zweryfikowano zgodność zmiennych z określonymi regułami, skorygowano
+błędy oraz uzupełniono braki imputacją, co umożliwiło dalszą rzetelną
+analizę danych.
 
 W celu wykonania projektu wczytano zestaw danych.
 
@@ -143,15 +164,22 @@ RULE <- editset(c(
 RULE
 ```
 
-Następnie zbadano ile razy w zbiorze danych łamane są ustanowione
-wcześniej reguły. Tutaj nie do końca umiem zinterpretować
-#naprawić błędy (zamienic na NA) i potem wypełnić braki imputacją
+Wynik analizy przedstawia liczbę naruszeń określonych reguł w zbiorze
+danych, wskazując, które zmienne nie spełniają założeń dotyczących
+poprawności wartości. Wykres dodatkowo wizualizuje skalę tych naruszeń,
+co pozwala na szybkie zidentyfikowanie obszarów wymagających korekty.
+
 ```{r}
 violations <- violatedEdits(RULE, tabela)
 summary(violations)
 summary(violatedEdits(RULE, tabela))
 plot(violations)
 ```
+
+Zidentyfikowane w poprzednim kroku naruszenia reguł zamieniono na NA -
+puste wartości. W kolejnych krokach dane te zostaną wyepłnione wybraną
+metodą.
+
 ```{r}
 for (i in 1:nrow(violations)) {
   for (j in 1:ncol(violations)) {
@@ -166,7 +194,6 @@ Wypełnianie braków danych\*\* W tym etapie projektu wypełniliśmy braki
 danych.
 
 Wypełnienie braków danych - wszystkich wartosci
-
 
 # powyzsza metoda wypelnila wszystkie brakujace dane i sprwadza czy dane zostały uzupełnione
 
@@ -183,9 +210,31 @@ boxplot(tabela$Age)
 boxplot(tabela$MonthlyIncome)
 ```
 
+### **Podsumowanie**
+
+Proces oczyszczania danych pozwolił na identyfikację brakujących
+wartości oraz niezgodności w zbiorze, co umożliwiło ich skuteczną
+korektę. Zastosowane metody wizualizacji i analizy wykazały, że trzy
+zmienne zawierały braki, które następnie uzupełniono metodą imputacji.
+Dodatkowo zweryfikowano zgodność danych z określonymi regułami i
+skorygowano błędne wartości, aby zapewnić ich spójność. Finalnie,
+oczyszczony zbiór danych jest gotowy do dalszej analizy, eliminując
+ryzyko błędnych wniosków wynikających z braków i niespójności.
+
 # **Etap 2. Data wrangling**
 
-Manipulacja danymi
+### **Wstęp**
+
+W celu lepszego zrozumienia struktury zatrudnienia i wynagrodzeń w
+firmie dokonano filtrowania oraz analizy wybranych zmiennych. Szczególną
+uwagę poświęcono młodym pracownikom o niskich dochodach i krótkim stażu,
+a także ogólnej strukturze zatrudnienia w różnych działach i na
+stanowiskach.
+
+Poniżej zastosowano filtorowanie wybranych zmiennych. Wynik zawiera
+pracowników młodych, o niskich dochodach i krótkim stażu u obecnego
+menedżera, co może wskazywać na grupę o wyższym ryzyku rotacji lub
+dopiero rozpoczynającą karierę.
 
 ```{r}
 
@@ -199,8 +248,9 @@ Poniżej dokonano sortowania danych za pomocą jednej lub więcej
 zmiennych. Dodatkowo użyto funkcji 'count', aby zliczyć posortowane
 obserwacje. Z tego wiadomo na przykład, że w firmie pracowało więcej
 mężczyzn niż kobiet lub że najwięcej pracowników pochodziło z działu
-badań i rozwoju.
+badań i rozwoju. 
 #zamiast tego wykresiki ile % pracuje mezczyzni kobiety, ile zrezygnowalo itd., w jakim wieku rezygnuja itd
+
 ```{r}
 tabela_knn %>%
   count(Department)
@@ -229,7 +279,19 @@ tabela_knn %>%
   arrange(desc(Liczba_osób))
 ```
 
+### **Podsumowanie**
+
+Analiza wykazała, że wśród młodych pracowników o niskich dochodach mogą
+znajdować się osoby o wyższym ryzyku rotacji. Dodatkowo, struktura
+zatrudnienia wskazuje na dominację mężczyzn w firmie oraz największą
+liczbę pracowników w dziale badań i rozwoju. Pod względem wynagrodzenia
+najlepiej opłacanym stanowiskiem był manager, co sugeruje istotne
+różnice w wynagrodzeniach zależnie od roli w organizacji.
+
 # **Etap 3. Data visualization**
+
+### **Wstęp**
+Analiza danych wizualizacyjnych pozwala na lepsze zrozumienie czynników wpływających na satysfakcję i rotację pracowników. W niniejszym etapie przedstawiono różne aspekty związane z zatrudnieniem, takie jak wynagrodzenie, staż pracy, wykształcenie, wiek oraz satysfakcja zawodowa, które mogą wpływać na decyzje o pozostaniu lub odejściu z firmy. Pozwolą one na lepsze zrozumienie co motywuje pracowników do opuszczania firmy.
 
 ### **Wykres 1 - Satysfakcja z pracy**
 
@@ -261,7 +323,7 @@ Widać również, że płeć nie ma specjalnego wpływu na zarobki. Zarówno
 kobiety i mężczyźni w badanej populacji byli w stanie zarobić zarówno
 mało, średnio jak i uzyskać te najwyższe wartości.
 
-### **Wykres 3 - Zależność wieku względem zarobków** 
+### **Wykres 2 - Zależność wieku względem zarobków**
 
 Ten punktowy wykres przedstawia zależność wieku pracownika względem jego
 zarobków. W tym przypadku logiczne założenie, że wraz z wiekiem zarobki
@@ -284,10 +346,19 @@ ggplot(tabela_knn, aes(x=Age, y=MonthlyIncome, color=Gender)) +
     x = "Wiek",
     y = "Miesięczne zarobki") 
 ```
-### **Wykres 7 - Zależność satysfakcji z pracy względem odejść praconików**
 
-Na poniższym wykresie przedstawiono jak satysfakcja z pracy wpływa na decyzję pracownika o odejściu. Zdecydowanie widać, iż więcej jest pracowników, którzy zostają w firmie niż tych, którzy z niej odchodzą. Badana populacja wykazuje się bardzo wysoką satysfakcją z pracy - tych, którzy zostali i ocenili swoje zadowolonie najwyższym punktem jest niemalże dwuktornie więcej niż tych najmniej zadowolonych. 
-Natomiast odejście z pracy nie do końca podyktowane jest małą satysfakcją z pracy. Najwięcej pracowników, którzy odeszli z firmy ocenili swoje zadolowanie na 3 w czterostopniowej skali. Zatem wysoka satysfakcja nie gwaratnuje zatrzymanie pracownika. 
+### **Wykres 3 - Zależność satysfakcji z pracy względem odejść praconików**
+
+Na poniższym wykresie przedstawiono jak satysfakcja z pracy wpływa na
+decyzję pracownika o odejściu. Zdecydowanie widać, iż więcej jest
+pracowników, którzy zostają w firmie niż tych, którzy z niej odchodzą.
+Badana populacja wykazuje się bardzo wysoką satysfakcją z pracy - tych,
+którzy zostali i ocenili swoje zadowolonie najwyższym punktem jest
+niemalże dwuktornie więcej niż tych najmniej zadowolonych. Natomiast
+odejście z pracy nie do końca podyktowane jest małą satysfakcją z pracy.
+Najwięcej pracowników, którzy odeszli z firmy ocenili swoje zadolowanie
+na 3 w czterostopniowej skali. Zatem wysoka satysfakcja nie gwaratnuje
+zatrzymanie pracownika.
 
 ```{r}
 ggplot(data = tabela_knn, aes(x = JobSatisfaction, fill = Attrition)) +
@@ -303,7 +374,8 @@ ggplot(data = tabela_knn, aes(x = JobSatisfaction, fill = Attrition)) +
   theme_minimal()
 ```
 
-### **Wykres 8 - Zależność liczby lat pracy w firmie (YearsAtCompany) względem odejść (attrition) Wykres ten pokaże, jak liczba lat pracy rozkłada się w grupie pracowników, którzy odeszli, w porównaniu do tych, którzy pozostali w firmie **
+### **Wykres 4 - Zależność liczby lat pracy w firmie względem odejść**
+Wykres ten pokazuje, jak liczba lat pracy rozkłada się w grupie pracowników, którzy odeszli, w porównaniu do tych, którzy pozostali w firmie. Widać bardzo wyraźnie, iż najwięcej ludzi odchodzi z pracy do 10 lat stażu. Później odsetek ten znacznie spada, a czasem nawet nie występuje - staje się wyjątkiem. Mimo to należy zauważyć, że znaczna większość pracowników nie decyduje się w ogóle regygnować z pracy w przeciągu tych 10 pierwszych lat.
 
 ```{r}
 ggplot(data = tabela_knn, aes(x = YearsAtCompany, fill = Attrition)) +
@@ -318,7 +390,10 @@ ggplot(data = tabela_knn, aes(x = YearsAtCompany, fill = Attrition)) +
   ) +
   theme_minimal()
 ```
-### **Wykres 9 - Zależność liczby stawki godzinowej (HourlyRate) względem odejść (Attrition)**
+
+### **Wykres 5 - Zależność liczby stawki godzinowej względem odejść**
+Rozkłady dla obu grup są bardzo podobne – zakres wartości, mediana oraz rozstęp międzykwartylowy są niemal identyczne, co sugeruje, że wysokość stawki godzinowej nie miała istotnego wpływu na decyzję o odejściu. Brak wyraźnych różnic między grupami oznacza, że inne czynniki, a nie wysokość wynagrodzenia godzinowego, mogły bardziej wpływać na rotację pracowników.
+
 ```{r}
 ggplot(tabela_knn, aes(x = Attrition, y = HourlyRate )) +
   geom_boxplot() +
@@ -330,10 +405,10 @@ ggplot(tabela_knn, aes(x = Attrition, y = HourlyRate )) +
   ) +
   theme_minimal()
 ```
-### **Wykres 10 - Zależność liczby lat od ostatniego awansu (YearsSinceLastPromotion) względem odejść (attrition)**
-?
-?
-?
+
+### **Wykres 6 - Zależność liczby lat od ostatniego awansu względem odejść**
+Wykres ten ma rozkład bardzo podobny do czwartego - większość parcowników odchodzi kiedy od ostatniego awansu nie minęło więcej niż 3 lata. Może to wskazywać na potrzebę nagradzania pracowników promocją w pierwszych latach jego stażu pracy.
+
 ```{r}
 ggplot(data = tabela_knn, aes(x = YearsSinceLastPromotion, fill = Attrition)) +
   geom_histogram(binwidth = 1, position = "dodge", color = "white") +
@@ -347,11 +422,11 @@ ggplot(data = tabela_knn, aes(x = YearsSinceLastPromotion, fill = Attrition)) +
   ) +
   theme_minimal()
 ```
-# Wykres 11 - Korelacja rotacji pomiedzy dzialami(Department) a odejscia z pracy (Atrittion)
-?
-?
-?
-``` {r}
+
+# Wykres 7 - Korelacja rotacji pomiędzy działami względem odejść**
+Wykres ten przedstawia zestawienie działów i odejść pracowników. Można zauważyć, że są one na podobnym poziomie - największa różnica to 6 punktów procentowych. Wskazuje to na niewielki wpływ tej zmiennej na badanie motywacji pracowników do zmieniania miejsca pracy.
+
+```{r}
 data_percent <- tabela_knn %>%
   group_by(Department, Attrition) %>%
   summarise(count = n()) %>%
@@ -370,7 +445,13 @@ ggplot(data_percent, aes(x=Department, y=count, fill=Attrition)) +
   ) +
   theme(legend.position = c(0.85, 0.85))
 ```
-# Heatmapa - wersja 2 Heatmapa korelacji zmiennych z odejściami pracowników
+# Wykres 8 - Korelacja wybranych zmiennych (wiek, dochód, staż pracy, satysfakcja z pracy) względem odejść pracowników**
+Analizując korelacje zmiennej odejścia pracowników z innymi zmiennymi, można zauważyć następujące zależności:
+- Korelacja z wiekiem (-16,5%) – starsi pracownicy rzadziej odchodzą z firmy, co może wynikać z większej stabilności zawodowej lub większych korzyści związanych z długoterminowym zatrudnieniem.
+- Korelacja z miesięcznym dochodem (-15,5%) – osoby zarabiające więcej są mniej skłonne do odejścia, co może wskazywać na wpływ wynagrodzenia jako czynnika motywującego do pozostania w firmie.
+- Korelacja ze stażem pracy w firmie (-13,6%) – dłuższy staż pracy wiąże się z mniejszym prawdopodobieństwem rezygnacji, co może oznaczać, że pracownicy przywiązują się do organizacji wraz z upływem czasu.
+- Korelacja z satysfakcją z pracy (-10,6%) – choć relacja jest stosunkowo słaba, można zauważyć, że osoby mniej zadowolone z pracy częściej odchodzą, co potwierdza intuicyjny związek między satysfakcją a lojalnością wobec firmy.
+
 ```{r}
 # Tworzenie zmiennej binarnej dla Attrition
 tabela_knn$Attrition_bin <- ifelse(tabela_knn$Attrition == "Yes", 1, 0)
@@ -396,8 +477,12 @@ ggplot(data = melted_cor_matrix, aes(x = Var1, y = Var2, fill = value)) +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
   coord_fixed()
 ```
-# Rozklad - odejscia wgledem plci (Gender), wieku (Age), i stanu cywilnego (MaritialStatus)
-# sprawdzić czy coś się nie powtarza
+# Wykres 9 - Korelacja wybranych zmiennych (płec, wiek, stan cywilny) względem odejść pracowników**
+- Proporcje odejść wśród mężczyzn i kobiet są bardzo zbliżone. Płeć nie wydaje się zatem istotnym czynnikiem wpływającym na odejścia.
+- Osoby stanu wolnego mają wyraźnie wyższą skłonność do odejścia w porównaniu do osób zamężnych/żonatych oraz rozwiedzionych. 
+- Osoby, które odchodzą, częściej otrzymują niższe wynagrodzenie.Widać największą różnicę w przedziale do około 5000 jednostek – tu występuje najwięcej odejść.
+- Nadgodziny zwiększają odejścia. Jeśli pracownicy pracują ponad normę, mogą być bardziej skłonni do rezygnacji.
+
 ```{r}
 # Tworzenie zmiennej binarnej dla Attrition (1 = Yes, 0 = No)
 tabela_knn$Attrition_bin <- ifelse(tabela_knn$Attrition == "Yes", 1, 0)
@@ -431,35 +516,46 @@ ggplot(tabela_knn, aes(x = OverTime, fill = Attrition)) +
   theme_minimal()
 
 ```
+### **Podsumowanie**
+Przedstawione wizualizacje dostarczają cennych informacji na temat czynników determinujących satysfakcję i rotację pracowników. Widać wyraźne zależności między stażem pracy, wynagrodzeniem oraz awansami a decyzją o odejściu, natomiast płeć nie wydaje się istotnym czynnikiem wpływającym na rotację. Najbardziej narażeni na odejście są pracownicy we wczesnym etapie kariery, zwłaszcza jeśli ich wynagrodzenie nie rośnie lub nie otrzymują awansu. Wyniki te mogą być pomocne w opracowaniu skutecznych strategii zarządzania zasobami ludzkimi, które pozwolą na zwiększenie retencji pracowników i poprawę ich satysfakcji zawodowej.
+
+
 # ---------------Analiza Opisowa z pliku od Piotrka----------
 
 # Podstawowe statystyki opisowe dla zmiennych liczbowych
-summary(tabela_knn %>% select_if(is.numeric))
-describe(tabela_knn %>% select_if(is.numeric))
+
+summary(tabela_knn %\>% select_if(is.numeric)) describe(tabela_knn %\>%
+select_if(is.numeric))
 
 # Liczność kategorii w zmiennych kategorycznych
-categorical_summary <- tabela_knn %>%
-  select_if(is.character) %>%
-  summarise_all(~list(table(.)))
+
+categorical_summary \<- tabela_knn %\>% select_if(is.character) %\>%
+summarise_all(\~list(table(.)))
 
 print(categorical_summary)
 
 # Liczba unikalnych wartości w zmiennych kategorycznych
-tabela_knn %>% select_if(is.character) %>% summarise_all(~ n_distinct(.))
+
+tabela_knn %\>% select_if(is.character) %\>% summarise_all(\~
+n_distinct(.))
 
 # spytać chat jak to dopasować do naszych danych
+
 ```{r tai, echo=FALSE}
 kbl(tabela_knn,caption = "Mieszkania we Wrocławiu - ceny w kPLN") %>%
     kable_material(c("striped", "hover"))
 tab1<-classIntervals(mieszkania$price_PLN,n=10,style="fixed",fixedBreaks=seq(350000,1350000,by=100000))
 jenks.tests(tab1)
 ```
+
 # Macierz korelacji
-numerical_columns <- tabela_knn %>% select(where(is.numeric))
-corr_matrix <- cor(numerical_columns, use = "complete.obs")
+
+numerical_columns \<- tabela_knn %\>% select(where(is.numeric))
+corr_matrix \<- cor(numerical_columns, use = "complete.obs")
 corrplot(corr_matrix, method = "color", type = "upper")
- 
+
 # Konwersja typów zmiennych
+
 tabela_knn$Attrition <- as.factor(tabela_knn$Attrition)
 tabela_knn$BusinessTravel <- as.factor(tabela_knn$BusinessTravel)
 tabela_knn$Department <- as.factor(tabela_knn$Department)
@@ -468,47 +564,46 @@ tabela_knn$Gender <- as.factor(tabela_knn$Gender)
 tabela_knn$JobRole <- as.factor(tabela_knn$JobRole)
 tabela_knn$MaritalStatus <- as.factor(tabela_knn$MaritalStatus)
 tabela_knn$OverTime <- as.factor(tabela_knn$OverTime)
- 
-# Analiza opisowa podstawowych zmiennych
-summary(tabela_knn)
- 
-# Histogram dla wieku
-ggplot(tabela_knn, aes(x = Age)) +
-  geom_histogram(bins = 20, fill = "blue", alpha = 0.7) +
-  ggtitle("Rozkład wieku pracowników") +
-  xlab("Wiek") +
-  ylab("Liczba pracowników")
- 
-# Boxplot dla wynagrodzenia miesięcznego
-ggplot(tabela_knn, aes(x = Attrition, y = MonthlyIncome, fill = Attrition)) +
-  geom_boxplot() +
-  ggtitle("Porównanie wynagrodzenia miesięcznego") +
-  xlab("Odejście") +
-  ylab("Wynagrodzenie miesięczne")
- 
-# Macierz korelacji
-numerical_columns <- tabela_knn %>% select(where(is.numeric))
-corr_matrix <- cor(numerical_columns, use = "complete.obs")
-corrplot(corr_matrix, method = "color", type = "upper")
- 
-# Podstawowe statystyki dla wynagrodzenia miesięcznego według stanowiska
-tabela_knn %>% 
-  group_by(JobRole) %>% 
-  summarise(
-    Min = min(MonthlyIncome, na.rm = TRUE),
-    Max = max(MonthlyIncome, na.rm = TRUE),
-    Srednia = mean(MonthlyIncome, na.rm = TRUE),
-    Mediana = median(MonthlyIncome, na.rm = TRUE),
-    Odch_Std = sd(MonthlyIncome, na.rm = TRUE)
-  ) %>%
-  kable() %>%
-  kable_paper("striped", full_width = F)
-  
-# --- analiza opisowa z Chata
-Interpretacja wyników
-# Średnia i mediana: Średnia wieku pracowników wynosi X lat, podczas gdy mediana to Y lat. To sugeruje, że rozkład wieku jest [symetryczny/lekko prawoskośny/lekko lewoskośny].
-# Odchylenie standardowe: Odchylenie standardowe dla wieku wynosi Z, co wskazuje na [duże/małe] zróżnicowanie wieku wśród pracowników.
-# Kwartyle: 25% pracowników ma wiek poniżej A lat, 50% poniżej B lat, a 75% poniżej C lat.
-# Liczność kategorii: W firmie pracuje więcej mężczyzn niż kobiet (X mężczyzn vs Y kobiet).
-# Korelacje: Istnieje silna dodatnia korelacja między wiekiem a zarobkami (r = 0.7), co sugeruje, że starsi pracownicy zarabiają więcej.
 
+# Analiza opisowa podstawowych zmiennych
+
+summary(tabela_knn)
+
+# Histogram dla wieku
+
+ggplot(tabela_knn, aes(x = Age)) + geom_histogram(bins = 20, fill =
+"blue", alpha = 0.7) + ggtitle("Rozkład wieku pracowników") +
+xlab("Wiek") + ylab("Liczba pracowników")
+
+# Boxplot dla wynagrodzenia miesięcznego
+
+ggplot(tabela_knn, aes(x = Attrition, y = MonthlyIncome, fill =
+Attrition)) + geom_boxplot() + ggtitle("Porównanie wynagrodzenia
+miesięcznego") + xlab("Odejście") + ylab("Wynagrodzenie miesięczne")
+
+# Macierz korelacji
+
+numerical_columns \<- tabela_knn %\>% select(where(is.numeric))
+corr_matrix \<- cor(numerical_columns, use = "complete.obs")
+corrplot(corr_matrix, method = "color", type = "upper")
+
+# Podstawowe statystyki dla wynagrodzenia miesięcznego według stanowiska
+
+tabela_knn %\>% group_by(JobRole) %\>% summarise( Min =
+min(MonthlyIncome, na.rm = TRUE), Max = max(MonthlyIncome, na.rm =
+TRUE), Srednia = mean(MonthlyIncome, na.rm = TRUE), Mediana =
+median(MonthlyIncome, na.rm = TRUE), Odch_Std = sd(MonthlyIncome, na.rm
+= TRUE) ) %\>% kable() %\>% kable_paper("striped", full_width = F)
+
+# --- analiza opisowa z Chata
+
+Interpretacja wyników \# Średnia i mediana: Średnia wieku pracowników
+wynosi X lat, podczas gdy mediana to Y lat. To sugeruje, że rozkład
+wieku jest [symetryczny/lekko prawoskośny/lekko lewoskośny]. \#
+Odchylenie standardowe: Odchylenie standardowe dla wieku wynosi Z, co
+wskazuje na [duże/małe] zróżnicowanie wieku wśród pracowników. \#
+Kwartyle: 25% pracowników ma wiek poniżej A lat, 50% poniżej B lat, a
+75% poniżej C lat. \# Liczność kategorii: W firmie pracuje więcej
+mężczyzn niż kobiet (X mężczyzn vs Y kobiet). \# Korelacje: Istnieje
+silna dodatnia korelacja między wiekiem a zarobkami (r = 0.7), co
+sugeruje, że starsi pracownicy zarabiają więcej.
