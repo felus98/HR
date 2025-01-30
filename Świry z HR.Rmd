@@ -522,88 +522,126 @@ Przedstawione wizualizacje dostarczają cennych informacji na temat czynników d
 
 # ---------------Analiza Opisowa z pliku od Piotrka----------
 
-# Podstawowe statystyki opisowe dla zmiennych liczbowych
+# Instalacja i załadowanie wymaganych pakietów
+install.packages("moments")  # Dla skośności i kurtozy
+install.packages("ineq")  # Dla współczynnika Giniego i krzywej Lorenza
+install.packages("ggplot2")  # Dla wizualizacji
+install.packages("corrplot")  # Wizualizacja korelacji
+install.packages("psych")  # Dla statystyk opisowych
+install.packages("MASS")  # Dla testu normalności
 
-summary(tabela_knn %\>% select_if(is.numeric)) describe(tabela_knn %\>%
-select_if(is.numeric))
+library(moments)
+library(ineq)
+library(ggplot2)
+library(corrplot)
+library(psych)
+library(MASS)
 
-# Liczność kategorii w zmiennych kategorycznych
+# Wczytanie danych (jeśli jeszcze nie są wczytane)
+# tabela_knn <- read.csv("Twoje_dane.csv")
 
-categorical_summary \<- tabela_knn %\>% select_if(is.character) %\>%
-summarise_all(\~list(table(.)))
+# 1. PODSTAWOWE STATYSTYKI OPISOWE
+```{r}
+summary(tabela_knn)
+describe(tabela_knn)
+```
+# Pełniejsza analiza dla danych numerycznych
 
-print(categorical_summary)
-
-# Liczba unikalnych wartości w zmiennych kategorycznych
-
-tabela_knn %\>% select_if(is.character) %\>% summarise_all(\~
-n_distinct(.))
-
-# spytać chat jak to dopasować do naszych danych
-
-```{r tai, echo=FALSE}
-kbl(tabela_knn,caption = "Mieszkania we Wrocławiu - ceny w kPLN") %>%
-    kable_material(c("striped", "hover"))
-tab1<-classIntervals(mieszkania$price_PLN,n=10,style="fixed",fixedBreaks=seq(350000,1350000,by=100000))
-jenks.tests(tab1)
+# Miary tendencji centralnej
+```{r}
+mean(tabela_knn$Age)  # Średnia arytmetyczna
+median(tabela_knn$Age)  # Mediana
+table(tabela_knn$Age)[which.max(table(tabela_knn$Age))]  # Moda
 ```
 
+# Miary pozycyjne
+```{r}
+quantile(tabela_knn$Age, probs = c(0.25, 0.5, 0.75))  # Kwartyle
+IQR(tabela_knn$Age)  # Rozstęp międzykwartylowy
+```
+
+# Miary zróżnicowania
+```{r}
+range(tabela_knn$Age)  # Rozstęp
+var(tabela_knn$Age)  # Wariancja
+sd(tabela_knn$Age)  # Odchylenie standardowe
+cv_age <- sd(tabela_knn$Age) / mean(tabela_knn$Age) * 100  # 
+```
+Współczynnik zmienności (%)
+
+# 2. ANALIZA ROZKŁADU DANYCH
+```{r}
+skewness(tabela_knn$Age)  # Skośność (>0 prawostronna, <0 lewostronna)
+kurtosis(tabela_knn$Age)  # Kurtoza (>3 leptokurtyczny, <3 platokurtyczny)
+```
+
+# Reguła empiryczna (68-95-99,7%)
+```{r}
+mean_age <- mean(tabela_knn$Age)
+sd_age <- sd(tabela_knn$Age)
+c(mean_age - sd_age, mean_age + sd_age)  # 68% obserwacji
+c(mean_age - 2*sd_age, mean_age + 2*sd_age)  # 95% obserwacji
+c(mean_age - 3*sd_age, mean_age + 3*sd_age)  # 99.7% obserwacji
+```
+
+# 3. TESTY NORMALNOŚCI
+```{r}
+shapiro.test(tabela_knn$Age)
+shapiro.test(tabela_knn$TotalWorkingYears)
+```
+
+# 4. TESTY STATYSTYCZNE
+# Test t-Studenta: czy średni wiek różni się między osobami, które odeszły a tymi, które zostały
+```{r}
+t.test(Age ~ Attrition, data = tabela_knn)
+```
+
+# ANOVA: czy lata pracy różnią się istotnie między działami
+```{r}
+anova_model <- aov(TotalWorkingYears ~ Department, data = tabela_knn)
+summary(anova_model)
+```
+
+# Test chi-kwadrat: czy rezygnacja zależy od działu
+```{r}
+chisq.test(table(tabela_knn$Attrition, tabela_knn$Department))
+```
+
+# 5. ANALIZA KORELACJI
 # Macierz korelacji
+```{r}
+cor_matrix <- cor(tabela_knn[, sapply(tabela_knn, is.numeric)], use = "complete.obs")
+corrplot(cor_matrix, method = "color", type = "upper", tl.cex = 0.8)
+```
 
-numerical_columns \<- tabela_knn %\>% select(where(is.numeric))
-corr_matrix \<- cor(numerical_columns, use = "complete.obs")
-corrplot(corr_matrix, method = "color", type = "upper")
+# Test korelacji Pearsona
+```{r}
+cor.test(tabela_knn$Age, tabela_knn$TotalWorkingYears)
+```
 
-# Konwersja typów zmiennych
+# 6. REGRESJA LINIOWA
+```{r}
+reg_model <- lm(TotalWorkingYears ~ Age, data = tabela_knn)
+summary(reg_model)
+```
 
-tabela_knn$Attrition <- as.factor(tabela_knn$Attrition)
-tabela_knn$BusinessTravel <- as.factor(tabela_knn$BusinessTravel)
-tabela_knn$Department <- as.factor(tabela_knn$Department)
-tabela_knn$EducationField <- as.factor(tabela_knn$EducationField)
-tabela_knn$Gender <- as.factor(tabela_knn$Gender)
-tabela_knn$JobRole <- as.factor(tabela_knn$JobRole)
-tabela_knn$MaritalStatus <- as.factor(tabela_knn$MaritalStatus)
-tabela_knn$OverTime <- as.factor(tabela_knn$OverTime)
+# Wykres regresji
+```{r}
+ggplot(tabela_knn, aes(x = Age, y = TotalWorkingYears)) +
+  geom_point() +
+  geom_smooth(method = "lm", col = "red") +
+  ggtitle("Regresja liniowa: Wiek vs Lata pracy") +
+  xlab("Wiek") +
+  ylab("Lata pracy")
+```
 
-# Analiza opisowa podstawowych zmiennych
+# 7. NIERÓWNOŚCI DOCHODOWE (WSPÓŁCZYNNIK GINIEGO)
+```{r}
+gini_coefficient <- Gini(tabela_knn$Age)
+gini_coefficient  # Współczynnik Giniego (0 - równość, 1 - nierówność)
+```
 
-summary(tabela_knn)
-
-# Histogram dla wieku
-
-ggplot(tabela_knn, aes(x = Age)) + geom_histogram(bins = 20, fill =
-"blue", alpha = 0.7) + ggtitle("Rozkład wieku pracowników") +
-xlab("Wiek") + ylab("Liczba pracowników")
-
-# Boxplot dla wynagrodzenia miesięcznego
-
-ggplot(tabela_knn, aes(x = Attrition, y = MonthlyIncome, fill =
-Attrition)) + geom_boxplot() + ggtitle("Porównanie wynagrodzenia
-miesięcznego") + xlab("Odejście") + ylab("Wynagrodzenie miesięczne")
-
-# Macierz korelacji
-
-numerical_columns \<- tabela_knn %\>% select(where(is.numeric))
-corr_matrix \<- cor(numerical_columns, use = "complete.obs")
-corrplot(corr_matrix, method = "color", type = "upper")
-
-# Podstawowe statystyki dla wynagrodzenia miesięcznego według stanowiska
-
-tabela_knn %\>% group_by(JobRole) %\>% summarise( Min =
-min(MonthlyIncome, na.rm = TRUE), Max = max(MonthlyIncome, na.rm =
-TRUE), Srednia = mean(MonthlyIncome, na.rm = TRUE), Mediana =
-median(MonthlyIncome, na.rm = TRUE), Odch_Std = sd(MonthlyIncome, na.rm
-= TRUE) ) %\>% kable() %\>% kable_paper("striped", full_width = F)
-
-# --- analiza opisowa z Chata
-
-Interpretacja wyników \# Średnia i mediana: Średnia wieku pracowników
-wynosi X lat, podczas gdy mediana to Y lat. To sugeruje, że rozkład
-wieku jest [symetryczny/lekko prawoskośny/lekko lewoskośny]. \#
-Odchylenie standardowe: Odchylenie standardowe dla wieku wynosi Z, co
-wskazuje na [duże/małe] zróżnicowanie wieku wśród pracowników. \#
-Kwartyle: 25% pracowników ma wiek poniżej A lat, 50% poniżej B lat, a
-75% poniżej C lat. \# Liczność kategorii: W firmie pracuje więcej
-mężczyzn niż kobiet (X mężczyzn vs Y kobiet). \# Korelacje: Istnieje
-silna dodatnia korelacja między wiekiem a zarobkami (r = 0.7), co
-sugeruje, że starsi pracownicy zarabiają więcej.
+# Krzywa Lorenza
+```{r}
+plot(Lc(tabela_knn$Age), col = "blue", lwd = 2, main = "Krzywa Lorenza dla wieku")
+```
