@@ -49,16 +49,12 @@ library(tidyverse)
 library(datarium)
 library(textclean)
 library(mice)
-install.packages("readr")
-install.packages("dplyr")
-install.packages("psych")
-install.packages("ggcorrplot")
-install.packages("reshape2")
 library(readr)
 library(dplyr)
 library(psych)
 library(ggcorrplot)
 library(reshape2)
+library(ggstatsplot)
 ```
 
 # **Etap 1. Data cleansing**
@@ -645,3 +641,107 @@ gini_coefficient  # Współczynnik Giniego (0 - równość, 1 - nierówność)
 ```{r}
 plot(Lc(tabela_knn$Age), col = "blue", lwd = 2, main = "Krzywa Lorenza dla wieku")
 ```
+
+attrition_summary <- tabela_knn %>%
+  group_by(Attrition) %>%
+  summarise(Liczba = n(), Procent = round(n() / nrow(tabela_knn) * 100, 2))
+
+print(attrition_summary)
+
+# Podstawowe statystyki wieku w zależności od odejścia
+age_summary <- tabela_knn %>%
+  group_by(Attrition) %>%
+  summarise(Średni_wiek = round(mean(Age, na.rm = TRUE), 0),
+            Mediana_wieku = median(Age, na.rm = TRUE),
+            Odchylenie_standardowe = round(sd(Age, na.rm = TRUE), 1))
+
+print(age_summary)
+
+# Podstawowe statystyki dochodów w zależności od odejścia
+income_summary <- tabela_knn %>%
+  group_by(Attrition) %>%
+  summarise(Średni_dochód = round(mean(MonthlyIncome, na.rm = TRUE), 0),
+            Mediana_dochodu = median(MonthlyIncome, na.rm = TRUE),
+            Odchylenie_standardowe = round(sd(MonthlyIncome, na.rm = TRUE), 0))
+
+print(income_summary)
+
+# ==================================================
+# WNIOSKOWANIE STATYSTYCZNE
+# ==================================================
+
+# a) Test t-Studenta: Czy wiek różni się istotnie między osobami, które odeszły i zostały?
+t_test_age <- t.test(Age ~ Attrition, data = tabela_knn)
+print(t_test_age)
+
+# b) Test t-Studenta: Czy dochód różni się istotnie między grupami Attrition?
+t_test_income <- t.test(MonthlyIncome ~ Attrition, data = tabela_knn)
+print(t_test_income)
+
+# c) Test chi-kwadrat: Czy odejścia zależą od działu?
+chi_test_department <- chisq.test(table(tabela_knn$Attrition, tabela_knn$Department))
+print(chi_test_department)
+
+# d) Test chi-kwadrat: Czy odejścia zależą od stanowiska?
+chi_test_jobrole <- chisq.test(table(tabela_knn$Attrition, tabela_knn$JobRole))
+print(chi_test_jobrole)
+
+# ==================================================
+#  WIZUALIZACJE Z ggstatsplot
+# ==================================================
+
+# a) Różnice wieku między osobami, które odeszły i zostały
+ggstatsplot::ggbetweenstats(
+  data = tabela_knn,
+  x = Attrition,
+  y = Age,
+  title = "Porównanie wieku między osobami, które odeszły i zostały",
+  xlab = "Attrition (Czy pracownik odszedł?)",
+  ylab = "Wiek",
+  messages = FALSE
+)
+
+# b) Porównanie miesięcznych dochodów między osobami, które odeszły i zostały
+ggstatsplot::ggbetweenstats(
+  data = tabela_knn,
+  x = Attrition,
+  y = MonthlyIncome,
+  title = "Porównanie miesięcznych dochodów między osobami, które odeszły i zostały",
+  xlab = "Attrition (Czy pracownik odszedł?)",
+  ylab = "Miesięczny dochód",
+  messages = FALSE
+)
+
+# c) Zależność odejść od działu
+ggstatsplot::ggbarstats(
+  data = tabela_knn,
+  x = Department,
+  y = Attrition,
+  title = "Zależność odejść od działu",
+  xlab = "Dział",
+  ylab = "Proporcja odejść",
+  messages = FALSE
+)
+
+# d) Zależność odejść od stanowiska
+ggstatsplot::ggbarstats(
+  data = tabela_knn,
+  x = JobRole,
+  y = Attrition,
+  title = "Zależność odejść od stanowiska",
+  xlab = "Stanowisko",
+  ylab = "Proporcja odejść",
+  messages = FALSE
+)
+
+# e) Zależność między wiekiem a latami pracy w kontekście odejść
+ggstatsplot::ggscatterstats(
+  data = tabela_knn,
+  x = Age,
+  y = TotalWorkingYears,
+  title = "Zależność między wiekiem a latami pracy w kontekście odejść",
+  xlab = "Wiek",
+  ylab = "Lata pracy",
+  color = tabela_knn$Attrition,
+  messages = FALSE
+)
