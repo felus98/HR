@@ -55,6 +55,9 @@ library(psych)
 library(ggcorrplot)
 library(reshape2)
 library(ggstatsplot)
+library(ineq)
+library(corrplot)
+library(MASS)
 ```
 
 # **Etap 1. Data cleansing**
@@ -244,8 +247,8 @@ Poniżej dokonano sortowania danych za pomocą jednej lub więcej
 zmiennych. Dodatkowo użyto funkcji 'count', aby zliczyć posortowane
 obserwacje. Z tego wiadomo na przykład, że w firmie pracowało więcej
 mężczyzn niż kobiet lub że najwięcej pracowników pochodziło z działu
-badań i rozwoju. 
-#zamiast tego wykresiki ile % pracuje mezczyzni kobiety, ile zrezygnowalo itd., w jakim wieku rezygnuja itd
+badań i rozwoju. #zamiast tego wykresiki ile % pracuje mezczyzni
+kobiety, ile zrezygnowalo itd., w jakim wieku rezygnuja itd
 
 ```{r}
 tabela_knn %>%
@@ -287,7 +290,14 @@ różnice w wynagrodzeniach zależnie od roli w organizacji.
 # **Etap 3. Data visualization**
 
 ### **Wstęp**
-Analiza danych wizualizacyjnych pozwala na lepsze zrozumienie czynników wpływających na satysfakcję i rotację pracowników. W niniejszym etapie przedstawiono różne aspekty związane z zatrudnieniem, takie jak wynagrodzenie, staż pracy, wykształcenie, wiek oraz satysfakcja zawodowa, które mogą wpływać na decyzje o pozostaniu lub odejściu z firmy. Pozwolą one na lepsze zrozumienie co motywuje pracowników do opuszczania firmy.
+
+Analiza danych wizualizacyjnych pozwala na lepsze zrozumienie czynników
+wpływających na satysfakcję i rotację pracowników. W niniejszym etapie
+przedstawiono różne aspekty związane z zatrudnieniem, takie jak
+wynagrodzenie, staż pracy, wykształcenie, wiek oraz satysfakcja
+zawodowa, które mogą wpływać na decyzje o pozostaniu lub odejściu z
+firmy. Pozwolą one na lepsze zrozumienie co motywuje pracowników do
+opuszczania firmy.
 
 ### **Wykres 1 - Satysfakcja z pracy**
 
@@ -303,21 +313,6 @@ ggplot(tabela_knn, aes(x=JobSatisfaction)) +
   theme_bw() +
   facet_grid(~Gender)
 ```
-
-### **Wykres 2 - Zależność wyształcenia względem zarobków**
-
-Poniższy wykres przedstawia zależność poziomu wykształcenia do zarobków.
-Wydawać by się mogło, że wykształcenie znacznie wpływa na zarobki - co
-do zasady czym wyższe wykształcenie tym wyższe zarobki. Jednak w badanej
-populacji nie jest to zasadą. Choć rzeczywiście tendencja zaborków jest
-rosnąca oraz minimalne zarobki zwiększają się wraz z kolejnym poziomem
-wykształcenia, to najwyższe wartości obserwowane są w każdym z poziomów.
-Nie są to wcale pojedncze wartości odstające lecz powtarzające się
-obserwacje. Natomiast czym wyższe jest wykształcenie tym więcej
-pracowników zarabia statystycznie więcej niż z niższym wykształceniem.
-Widać również, że płeć nie ma specjalnego wpływu na zarobki. Zarówno
-kobiety i mężczyźni w badanej populacji byli w stanie zarobić zarówno
-mało, średnio jak i uzyskać te najwyższe wartości.
 
 ### **Wykres 2 - Zależność wieku względem zarobków**
 
@@ -371,7 +366,14 @@ ggplot(data = tabela_knn, aes(x = JobSatisfaction, fill = Attrition)) +
 ```
 
 ### **Wykres 4 - Zależność liczby lat pracy w firmie względem odejść**
-Wykres ten pokazuje, jak liczba lat pracy rozkłada się w grupie pracowników, którzy odeszli, w porównaniu do tych, którzy pozostali w firmie. Widać bardzo wyraźnie, iż najwięcej ludzi odchodzi z pracy do 10 lat stażu. Później odsetek ten znacznie spada, a czasem nawet nie występuje - staje się wyjątkiem. Mimo to należy zauważyć, że znaczna większość pracowników nie decyduje się w ogóle regygnować z pracy w przeciągu tych 10 pierwszych lat.
+
+Wykres ten pokazuje, jak liczba lat pracy rozkłada się w grupie
+pracowników, którzy odeszli, w porównaniu do tych, którzy pozostali w
+firmie. Widać bardzo wyraźnie, iż najwięcej ludzi odchodzi z pracy do 10
+lat stażu. Później odsetek ten znacznie spada, a czasem nawet nie
+występuje - staje się wyjątkiem. Mimo to należy zauważyć, że znaczna
+większość pracowników nie decyduje się w ogóle regygnować z pracy w
+przeciągu tych 10 pierwszych lat.
 
 ```{r}
 ggplot(data = tabela_knn, aes(x = YearsAtCompany, fill = Attrition)) +
@@ -388,7 +390,13 @@ ggplot(data = tabela_knn, aes(x = YearsAtCompany, fill = Attrition)) +
 ```
 
 ### **Wykres 5 - Zależność liczby stawki godzinowej względem odejść**
-Rozkłady dla obu grup są bardzo podobne – zakres wartości, mediana oraz rozstęp międzykwartylowy są niemal identyczne, co sugeruje, że wysokość stawki godzinowej nie miała istotnego wpływu na decyzję o odejściu. Brak wyraźnych różnic między grupami oznacza, że inne czynniki, a nie wysokość wynagrodzenia godzinowego, mogły bardziej wpływać na rotację pracowników.
+
+Rozkłady dla obu grup są bardzo podobne – zakres wartości, mediana oraz
+rozstęp międzykwartylowy są niemal identyczne, co sugeruje, że wysokość
+stawki godzinowej nie miała istotnego wpływu na decyzję o odejściu. Brak
+wyraźnych różnic między grupami oznacza, że inne czynniki, a nie
+wysokość wynagrodzenia godzinowego, mogły bardziej wpływać na rotację
+pracowników.
 
 ```{r}
 ggplot(tabela_knn, aes(x = Attrition, y = HourlyRate )) +
@@ -403,7 +411,11 @@ ggplot(tabela_knn, aes(x = Attrition, y = HourlyRate )) +
 ```
 
 ### **Wykres 6 - Zależność liczby lat od ostatniego awansu względem odejść**
-Wykres ten ma rozkład bardzo podobny do czwartego - większość parcowników odchodzi kiedy od ostatniego awansu nie minęło więcej niż 3 lata. Może to wskazywać na potrzebę nagradzania pracowników promocją w pierwszych latach jego stażu pracy.
+
+Wykres ten ma rozkład bardzo podobny do czwartego - większość
+parcowników odchodzi kiedy od ostatniego awansu nie minęło więcej niż 3
+lata. Może to wskazywać na potrzebę nagradzania pracowników promocją w
+pierwszych latach jego stażu pracy.
 
 ```{r}
 ggplot(data = tabela_knn, aes(x = YearsSinceLastPromotion, fill = Attrition)) +
@@ -419,8 +431,12 @@ ggplot(data = tabela_knn, aes(x = YearsSinceLastPromotion, fill = Attrition)) +
   theme_minimal()
 ```
 
-# Wykres 7 - Korelacja rotacji pomiędzy działami względem odejść**
-Wykres ten przedstawia zestawienie działów i odejść pracowników. Można zauważyć, że są one na podobnym poziomie - największa różnica to 6 punktów procentowych. Wskazuje to na niewielki wpływ tej zmiennej na badanie motywacji pracowników do zmieniania miejsca pracy.
+### **Wykres 7 - Korelacja rotacji pomiędzy działami względem odejść**
+
+Wykres ten przedstawia zestawienie działów i odejść pracowników. Można
+zauważyć, że są one na podobnym poziomie - największa różnica to 6
+punktów procentowych. Wskazuje to na niewielki wpływ tej zmiennej na
+badanie motywacji pracowników do zmieniania miejsca pracy.
 
 ```{r}
 data_percent <- tabela_knn %>%
@@ -441,12 +457,23 @@ ggplot(data_percent, aes(x=Department, y=count, fill=Attrition)) +
   ) +
   theme(legend.position = c(0.85, 0.85))
 ```
-# Wykres 8 - Korelacja wybranych zmiennych (wiek, dochód, staż pracy, satysfakcja z pracy) względem odejść pracowników**
-Analizując korelacje zmiennej odejścia pracowników z innymi zmiennymi, można zauważyć następujące zależności:
-- Korelacja z wiekiem (-16,5%) – starsi pracownicy rzadziej odchodzą z firmy, co może wynikać z większej stabilności zawodowej lub większych korzyści związanych z długoterminowym zatrudnieniem.
-- Korelacja z miesięcznym dochodem (-15,5%) – osoby zarabiające więcej są mniej skłonne do odejścia, co może wskazywać na wpływ wynagrodzenia jako czynnika motywującego do pozostania w firmie.
-- Korelacja ze stażem pracy w firmie (-13,6%) – dłuższy staż pracy wiąże się z mniejszym prawdopodobieństwem rezygnacji, co może oznaczać, że pracownicy przywiązują się do organizacji wraz z upływem czasu.
-- Korelacja z satysfakcją z pracy (-10,6%) – choć relacja jest stosunkowo słaba, można zauważyć, że osoby mniej zadowolone z pracy częściej odchodzą, co potwierdza intuicyjny związek między satysfakcją a lojalnością wobec firmy.
+
+### **Wykres 8 - Korelacja wybranych zmiennych (wiek, dochód, staż pracy, satysfakcja z pracy) względem odejść pracowników**
+
+Analizując korelacje zmiennej odejścia pracowników z innymi zmiennymi,
+można zauważyć następujące zależności: --- Korelacja z wiekiem (-16,5%)
+– starsi pracownicy rzadziej odchodzą z firmy, co może wynikać z
+większej stabilności zawodowej lub większych korzyści związanych z
+długoterminowym zatrudnieniem. --- Korelacja z miesięcznym dochodem
+(-15,5%) – osoby zarabiające więcej są mniej skłonne do odejścia, co
+może wskazywać na wpływ wynagrodzenia jako czynnika motywującego do
+pozostania w firmie. - Korelacja ze stażem pracy w firmie (-13,6%) –
+dłuższy staż pracy wiąże się z mniejszym prawdopodobieństwem rezygnacji,
+co może oznaczać, że pracownicy przywiązują się do organizacji wraz z
+upływem czasu. - Korelacja z satysfakcją z pracy (-10,6%) – choć relacja
+jest stosunkowo słaba, można zauważyć, że osoby mniej zadowolone z pracy
+częściej odchodzą, co potwierdza intuicyjny związek między satysfakcją a
+lojalnością wobec firmy.
 
 ```{r}
 # Tworzenie zmiennej binarnej dla Attrition
@@ -473,11 +500,18 @@ ggplot(data = melted_cor_matrix, aes(x = Var1, y = Var2, fill = value)) +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
   coord_fixed()
 ```
-# Wykres 9 - Korelacja wybranych zmiennych (płec, wiek, stan cywilny) względem odejść pracowników**
-- Proporcje odejść wśród mężczyzn i kobiet są bardzo zbliżone. Płeć nie wydaje się zatem istotnym czynnikiem wpływającym na odejścia.
-- Osoby stanu wolnego mają wyraźnie wyższą skłonność do odejścia w porównaniu do osób zamężnych/żonatych oraz rozwiedzionych. 
-- Osoby, które odchodzą, częściej otrzymują niższe wynagrodzenie.Widać największą różnicę w przedziale do około 5000 jednostek – tu występuje najwięcej odejść.
-- Nadgodziny zwiększają odejścia. Jeśli pracownicy pracują ponad normę, mogą być bardziej skłonni do rezygnacji.
+
+### \*\*Wykres 9 - Korelacja wybranych zmiennych (płec, wiek, stan cywilny) względem odejść pracowników\*\*
+
+-   Proporcje odejść wśród mężczyzn i kobiet są bardzo zbliżone. Płeć
+    nie wydaje się zatem istotnym czynnikiem wpływającym na odejścia.
+-   Osoby stanu wolnego mają wyraźnie wyższą skłonność do odejścia w
+    porównaniu do osób zamężnych/żonatych oraz rozwiedzionych.
+-   Osoby, które odchodzą, częściej otrzymują niższe wynagrodzenie.
+    Widać największą różnicę w przedziale do około 5000 jednostek – tu
+    występuje najwięcej odejść.
+-   Nadgodziny zwiększają odejścia. Jeśli pracownicy pracują ponad
+    normę, mogą być bardziej skłonni do rezygnacji.
 
 ```{r}
 # Tworzenie zmiennej binarnej dla Attrition (1 = Yes, 0 = No)
@@ -490,21 +524,21 @@ ggplot(tabela_knn, aes(x = Gender, fill = Attrition)) +
   scale_fill_manual(values = c("No" = "lightblue", "Yes" = "darkred"), name = "Attrition") +
   theme_minimal()
 
-# 3. Rozkład odejść w zależności od stanu cywilnego (MaritalStatus)
+# 2. Rozkład odejść w zależności od stanu cywilnego (MaritalStatus)
 ggplot(tabela_knn, aes(x = MaritalStatus, fill = Attrition)) +
   geom_bar(position = "fill") +
   labs(title = "Rozkład odejść w zależności od stanu cywilnego", y = "Proporcja", x = "Stan cywilny") +
   scale_fill_manual(values = c("No" = "lightblue", "Yes" = "darkred"), name = "Attrition") +
   theme_minimal()
 
-# 5. Wpływ wynagrodzenia (MonthlyIncome) na odejścia
+# 3. Wpływ wynagrodzenia (MonthlyIncome) na odejścia
 ggplot(tabela_knn, aes(x = MonthlyIncome, fill = Attrition)) +
   geom_density(alpha = 0.5) +
   labs(title = "Wpływ wynagrodzenia na odejścia", x = "Miesięczne wynagrodzenie", y = "Gęstość") +
   scale_fill_manual(values = c("No" = "lightblue", "Yes" = "darkred"), name = "Attrition") +
   theme_minimal()
 
-# 7. Odejścia w zależności od liczby godzin pracy (OverTime)
+# 4. Odejścia w zależności od liczby godzin pracy (OverTime)
 ggplot(tabela_knn, aes(x = OverTime, fill = Attrition)) +
   geom_bar(position = "fill") +
   labs(title = "Odejścia a nadgodziny", y = "Proporcja", x = "Nadgodziny") +
@@ -512,66 +546,72 @@ ggplot(tabela_knn, aes(x = OverTime, fill = Attrition)) +
   theme_minimal()
 
 ```
+
 ### **Podsumowanie**
-Przedstawione wizualizacje dostarczają cennych informacji na temat czynników determinujących satysfakcję i rotację pracowników. Widać wyraźne zależności między stażem pracy, wynagrodzeniem oraz awansami a decyzją o odejściu, natomiast płeć nie wydaje się istotnym czynnikiem wpływającym na rotację. Najbardziej narażeni na odejście są pracownicy we wczesnym etapie kariery, zwłaszcza jeśli ich wynagrodzenie nie rośnie lub nie otrzymują awansu. Wyniki te mogą być pomocne w opracowaniu skutecznych strategii zarządzania zasobami ludzkimi, które pozwolą na zwiększenie retencji pracowników i poprawę ich satysfakcji zawodowej.
 
+Przedstawione wizualizacje dostarczają cennych informacji na temat
+czynników determinujących satysfakcję i rotację pracowników. Widać
+wyraźne zależności między stażem pracy, wynagrodzeniem oraz awansami a
+decyzją o odejściu, natomiast płeć nie wydaje się istotnym czynnikiem
+wpływającym na rotację. Najbardziej narażeni na odejście są pracownicy
+we wczesnym etapie kariery, zwłaszcza jeśli ich wynagrodzenie nie rośnie
+lub nie otrzymują awansu. Wyniki te mogą być pomocne w opracowaniu
+skutecznych strategii zarządzania zasobami ludzkimi, które pozwolą na
+zwiększenie retencji pracowników i poprawę ich satysfakcji zawodowej.
 
-# ---------------Analiza Opisowa z pliku od Piotrka----------
+# **Etap 3. Analiza opisowa**
 
-# Instalacja i załadowanie wymaganych pakietów
-install.packages("moments")  # Dla skośności i kurtozy
-install.packages("ineq")  # Dla współczynnika Giniego i krzywej Lorenza
-install.packages("ggplot2")  # Dla wizualizacji
-install.packages("corrplot")  # Wizualizacja korelacji
-install.packages("psych")  # Dla statystyk opisowych
-install.packages("MASS")  # Dla testu normalności
+### **Wstęp**
 
-library(moments)
-library(ineq)
-library(ggplot2)
-library(corrplot)
-library(psych)
-library(MASS)
+### **Podstawowe statystyki opisowe**
 
-# Wczytanie danych (jeśli jeszcze nie są wczytane)
-# tabela_knn <- read.csv("Twoje_dane.csv")
+Policzono podstawowe statystyki opisowe takie jak mediana, moda,
+odchylenie stadardowe, minimum, maksimum itd. dla trzech wybranych
+zmiennych (wiek, średnie wynagordzenie dzienne, dystans z domu do
+pracy). Wyniki zaprezentowano w tabeli poniżej. Przykładowo dla wieku:
+średnia wynosi 36,88 lat, połowa pracowników ma mniej, a połowa więcej
+niż 35 lat, czy rozpiętość wieku wynosi 18-60 lat.
 
-# 1. PODSTAWOWE STATYSTYKI OPISOWE
 ```{r}
-summary(tabela_knn)
-describe(tabela_knn)
-```
-# Pełniejsza analiza dla danych numerycznych
-
-# Miary tendencji centralnej
-```{r}
-mean(tabela_knn$Age)  # Średnia arytmetyczna
-median(tabela_knn$Age)  # Mediana
-table(tabela_knn$Age)[which.max(table(tabela_knn$Age))]  # Moda
+describe_tabela <- describe(tabela_knn[, c("Age", "DailyRate", "DistanceFromHome")])
+print(describe_tabela)
 ```
 
-# Miary pozycyjne
+### **Miary pozycyjne**
+Wyniki przedstawiają kwartyle oraz rozstęp międzykwartylowy (IQR) dla wieku. Wynika z tego, że:
+- 25% obserwacji ma wartość wieku mniejszą lub równą 30
+- Połowa wartości wieku jest mniejsza lub równa 35
+- 75% obserwacji ma wartość wieku mniejszą lub równą 43
+- 13 - zakres, w którym znajduje się środkowe 50% danych
 ```{r}
-quantile(tabela_knn$Age, probs = c(0.25, 0.5, 0.75))  # Kwartyle
-IQR(tabela_knn$Age)  # Rozstęp międzykwartylowy
+quantile(tabela_knn$Age, probs = c(0.25, 0.5, 0.75))
+IQR(tabela_knn$Age)
+```
+### **Miary zróżnicowania**
+Policzono trzy miary zróżnicowania, kolejno: rozstęp, wariancję i odchylenie standardowe. Wyniki są następujące:
+- Najmłodsza osoba w zbiorze danych ma 18 lat, a najstarsza 60 lat (zakres wieku to 42 lata)
+- wysoka wartość wariancji sugeruje, że wartości są rozproszone i zróżnicowanie
+- przeciętnie, wartości wieku różnią się od średniej o prawie 9 lat
+- dane są stosunkowo wysoko zróżnicowane względem ich średniej wartości
+```{r}
+range(tabela_knn$Age)
+var(tabela_knn$Age)
+sd(tabela_knn$Age)
+cv_age <- sd(tabela_knn$Age) / mean(tabela_knn$Age) * 100
+cv_age
+```
+### **Analiza rozkładu danych**
+Poniżej, obliczono wartość skośności oraz kurtozy, aby określić rozkład danych. Skośność wieku wynosi 0,46 - dodatnia wartość wskazuje na skośność prawostronną oraz więcej młodszych pracowników. Kurtoza wieku wynosi 2,67, co oznacza, że rozkład wieku jest lekko spłaszczony rozkład w porównaniu do normalnego.
+```{r}
+skewness(tabela_knn$Age)
+kurtosis(tabela_knn$Age)
 ```
 
-# Miary zróżnicowania
-```{r}
-range(tabela_knn$Age)  # Rozstęp
-var(tabela_knn$Age)  # Wariancja
-sd(tabela_knn$Age)  # Odchylenie standardowe
-cv_age <- sd(tabela_knn$Age) / mean(tabela_knn$Age) * 100  # 
-```
-Współczynnik zmienności (%)
-
-# 2. ANALIZA ROZKŁADU DANYCH
-```{r}
-skewness(tabela_knn$Age)  # Skośność (>0 prawostronna, <0 lewostronna)
-kurtosis(tabela_knn$Age)  # Kurtoza (>3 leptokurtyczny, <3 platokurtyczny)
-```
-
-# Reguła empiryczna (68-95-99,7%)
+### **Reguła empiryczna**
+W celu policzenia reguł empirycznych wybrano trzy wartości: 68%, 95% i 99,7% obserwacji. Oznacza to, że:
+- 68% pracowników mieści się w przedziale 27-46 lat
+- 95% mieści się w przedziale 19-55 lat
+- 99,7% mieści się w przedziale 10-64 lat
 ```{r}
 mean_age <- mean(tabela_knn$Age)
 sd_age <- sd(tabela_knn$Age)
@@ -579,49 +619,62 @@ c(mean_age - sd_age, mean_age + sd_age)  # 68% obserwacji
 c(mean_age - 2*sd_age, mean_age + 2*sd_age)  # 95% obserwacji
 c(mean_age - 3*sd_age, mean_age + 3*sd_age)  # 99.7% obserwacji
 ```
-
-# 3. TESTY NORMALNOŚCI
+### **Testy normlaności**
+Test Shapiro-Wilka służy do sprawdzenia normalności rozkładu danej zmiennej. Hipotezowa zerowa mówi, że dane pochodzą z rozkładu zerowego, na rzecz alternatywy, że tak nie jest. Z racji, że wartość p-value jest niższa niż 0.01 odrzucamy hipotezę zerową na rzecz alternatywy. Oznacza to, że rozkład wieku nie jest normalny w obydwóch badanych przypadkach zmiennych.
 ```{r}
 shapiro.test(tabela_knn$Age)
 shapiro.test(tabela_knn$TotalWorkingYears)
 ```
-
-# 4. TESTY STATYSTYCZNE
-# Test t-Studenta: czy średni wiek różni się między osobami, które odeszły a tymi, które zostały
+### **Test t-Studenta**
+Zastosowano test t-Studenta, aby porównać średni wiek pracowników, którzy zostali w firmie z tymi, którzy odeszli. Wyniki są następujące:
+- P-value jest ekstremalnie niskie (p < 0.05), więc istnieje istotna statystycznie różnica między średnimi wieku pracowników, którzy zostali, a tych, którzy odeszli.
+- Średnia wieku pracowników, którzy pozostali w firmie, wynosi 37.50 lat, podczas gdy średnia wieku osób, które odeszły, to 33.33 lat.
+- Przedział ufności (2.83 – 5.51) nie obejmuje zera, co dodatkowo potwierdza, że różnica między grupami jest statystycznie istotna.
 ```{r}
 t.test(Age ~ Attrition, data = tabela_knn)
 ```
-
-# ANOVA: czy lata pracy różnią się istotnie między działami
+### **ANOVA**
+Analiza wariancji została zastosowana do sprawdzenia, czy istnieją istotne różnice w liczbie lat pracy między pracownikami różnych działów. Wnioski są następujące:
+- P-value = 0.83, co oznacza, że nie ma istotnych statystycznie różnic w liczbie lat pracy
+- Niska wartość F (0.18) sugeruje, że różnice między średnimi dla działów są bardzo małe w porównaniu do zmienności wewnątrz grup.
+Przynależność do działu nie wpływa istotnie na liczbę lat pracy – staż pracowników jest podobny niezależnie od działu.
 ```{r}
 anova_model <- aov(TotalWorkingYears ~ Department, data = tabela_knn)
 summary(anova_model)
 ```
-
-# Test chi-kwadrat: czy rezygnacja zależy od działu
+### **Test chi-kwadrat**
+Test Chi-kwadrat został użyty do zbadania, czy istnieje zależność między odejściem pracownika z firmy a poziomem wykształcenia. Wnioski są następujące:
+- p-value = 0.314, co oznacza, że poziom wykształcenia nie ma istotnego wpływu na decyzję o odejściu z firmy.
+- staystyka jest niska, co oznacza, że różnice między rzeczywistymi a oczekiwanymi wartościami są niewielkie.
+Wniosek: Wykształcenie nie wpływa istotnie na rotację pracowników.
 ```{r}
-chisq.test(table(tabela_knn$Attrition, tabela_knn$Department))
+chisq.test(table(tabela_knn$Attrition, tabela_knn$Education))
 ```
-
-# 5. ANALIZA KORELACJI
-# Macierz korelacji
 ```{r}
-cor_matrix <- cor(tabela_knn[, sapply(tabela_knn, is.numeric)], use = "complete.obs")
-corrplot(cor_matrix, method = "color", type = "upper", tl.cex = 0.8)
+chisq.test(table(tabela_knn$Attrition, tabela_knn$Education))
 ```
-
-# Test korelacji Pearsona
+### **Test chi-kwadrat 2**
+Test Chi-kwadrat został użyty do zbadania, czy istnieje zależność między odejściem pracownika z firmy a stanowiskiem. Wnioski są następujące:
+- p-value < 0.05 co oznacza, że stanowisko ma bardzo duże znaczenie w kontekście odejść z pracy
+- staystyka jest wysoka, co oznacza, różnice między rzeczywistymi a oczekiwanymi wartościami są duże.
+Wniosek: Odejścia są silnie zależne od stanowiska. Niektóre stanowiska mogą mieć znacznie większą rotację niż inne.
+```{r}
+chisq.test(table(tabela_knn$Attrition, tabela_knn$JobRole))
+```
+### **Test korelacji Pearsona**
+Zbadano korelację pomiędzy wiekiem a całkowitą liczbą lat pracy. Wysoka wartość statystyki wskazuje na silną zależność między zmiennymi. Bardzo niska wartość p-value oznacza, że możemy odrzucić hipotezę zerową stanowiącą o braku korelacji pomiędzy wiekiem a całkowitą liczbą lat pracy. Całkiem wysoka wartość współczynnika oznacza, że im wyższy wiek, tym większa liczba lat przepracowanych.
 ```{r}
 cor.test(tabela_knn$Age, tabela_knn$TotalWorkingYears)
 ```
-
-# 6. REGRESJA LINIOWA
+### **Regresja liniowa**
+Poniżej sformułowano regresję liniową, w której odejscia z pracy są wyjaśniane przez wiek oraz dochód. Z regresji tej wynika, że każdy dodatkowy rok życia zwię
 ```{r}
-reg_model <- lm(TotalWorkingYears ~ Age, data = tabela_knn)
+reg_model <- lm(Attrition ~ Age+MonthlyIncome, data = tabela_knn)
 summary(reg_model)
 ```
 
 # Wykres regresji
+
 ```{r}
 ggplot(tabela_knn, aes(x = Age, y = TotalWorkingYears)) +
   geom_point() +
@@ -632,116 +685,104 @@ ggplot(tabela_knn, aes(x = Age, y = TotalWorkingYears)) +
 ```
 
 # 7. NIERÓWNOŚCI DOCHODOWE (WSPÓŁCZYNNIK GINIEGO)
+
 ```{r}
 gini_coefficient <- Gini(tabela_knn$Age)
 gini_coefficient  # Współczynnik Giniego (0 - równość, 1 - nierówność)
 ```
 
 # Krzywa Lorenza
+
 ```{r}
 plot(Lc(tabela_knn$Age), col = "blue", lwd = 2, main = "Krzywa Lorenza dla wieku")
 ```
 
-attrition_summary <- tabela_knn %>%
-  group_by(Attrition) %>%
-  summarise(Liczba = n(), Procent = round(n() / nrow(tabela_knn) * 100, 2))
+attrition_summary \<- tabela_knn %\>% group_by(Attrition) %\>%
+summarise(Liczba = n(), Procent = round(n() / nrow(tabela_knn) \* 100,
+2))
 
 print(attrition_summary)
 
 # Podstawowe statystyki wieku w zależności od odejścia
-age_summary <- tabela_knn %>%
-  group_by(Attrition) %>%
-  summarise(Średni_wiek = round(mean(Age, na.rm = TRUE), 0),
-            Mediana_wieku = median(Age, na.rm = TRUE),
-            Odchylenie_standardowe = round(sd(Age, na.rm = TRUE), 1))
+
+age_summary \<- tabela_knn %\>% group_by(Attrition) %\>%
+summarise(Średni_wiek = round(mean(Age, na.rm = TRUE), 0), Mediana_wieku
+= median(Age, na.rm = TRUE), Odchylenie_standardowe = round(sd(Age,
+na.rm = TRUE), 1))
 
 print(age_summary)
 
 # Podstawowe statystyki dochodów w zależności od odejścia
-income_summary <- tabela_knn %>%
-  group_by(Attrition) %>%
-  summarise(Średni_dochód = round(mean(MonthlyIncome, na.rm = TRUE), 0),
-            Mediana_dochodu = median(MonthlyIncome, na.rm = TRUE),
-            Odchylenie_standardowe = round(sd(MonthlyIncome, na.rm = TRUE), 0))
+
+income_summary \<- tabela_knn %\>% group_by(Attrition) %\>%
+summarise(Średni_dochód = round(mean(MonthlyIncome, na.rm = TRUE), 0),
+Mediana_dochodu = median(MonthlyIncome, na.rm = TRUE),
+Odchylenie_standardowe = round(sd(MonthlyIncome, na.rm = TRUE), 0))
 
 print(income_summary)
 
 # ==================================================
+
 # WNIOSKOWANIE STATYSTYCZNE
+
 # ==================================================
 
 # a) Test t-Studenta: Czy wiek różni się istotnie między osobami, które odeszły i zostały?
-t_test_age <- t.test(Age ~ Attrition, data = tabela_knn)
+
+t_test_age \<- t.test(Age \~ Attrition, data = tabela_knn)
 print(t_test_age)
 
 # b) Test t-Studenta: Czy dochód różni się istotnie między grupami Attrition?
-t_test_income <- t.test(MonthlyIncome ~ Attrition, data = tabela_knn)
+
+t_test_income \<- t.test(MonthlyIncome \~ Attrition, data = tabela_knn)
 print(t_test_income)
 
 # c) Test chi-kwadrat: Czy odejścia zależą od działu?
-chi_test_department <- chisq.test(table(tabela_knn$Attrition, tabela_knn$Department))
+
+chi_test_department \<-
+chisq.test(table(tabela_knn$Attrition, tabela_knn$Department))
 print(chi_test_department)
 
 # d) Test chi-kwadrat: Czy odejścia zależą od stanowiska?
-chi_test_jobrole <- chisq.test(table(tabela_knn$Attrition, tabela_knn$JobRole))
+
+chi_test_jobrole \<-
+chisq.test(table(tabela_knn$Attrition, tabela_knn$JobRole))
 print(chi_test_jobrole)
 
 # ==================================================
-#  WIZUALIZACJE Z ggstatsplot
+
+# WIZUALIZACJE Z ggstatsplot
+
 # ==================================================
 
 # a) Różnice wieku między osobami, które odeszły i zostały
-ggstatsplot::ggbetweenstats(
-  data = tabela_knn,
-  x = Attrition,
-  y = Age,
-  title = "Porównanie wieku między osobami, które odeszły i zostały",
-  xlab = "Attrition (Czy pracownik odszedł?)",
-  ylab = "Wiek",
-  messages = FALSE
-)
+
+ggstatsplot::ggbetweenstats( data = tabela_knn, x = Attrition, y = Age,
+title = "Porównanie wieku między osobami, które odeszły i zostały", xlab
+= "Attrition (Czy pracownik odszedł?)", ylab = "Wiek", messages = FALSE)
 
 # b) Porównanie miesięcznych dochodów między osobami, które odeszły i zostały
-ggstatsplot::ggbetweenstats(
-  data = tabela_knn,
-  x = Attrition,
-  y = MonthlyIncome,
-  title = "Porównanie miesięcznych dochodów między osobami, które odeszły i zostały",
-  xlab = "Attrition (Czy pracownik odszedł?)",
-  ylab = "Miesięczny dochód",
-  messages = FALSE
-)
+
+ggstatsplot::ggbetweenstats( data = tabela_knn, x = Attrition, y =
+MonthlyIncome, title = "Porównanie miesięcznych dochodów między osobami,
+które odeszły i zostały", xlab = "Attrition (Czy pracownik odszedł?)",
+ylab = "Miesięczny dochód", messages = FALSE )
 
 # c) Zależność odejść od działu
-ggstatsplot::ggbarstats(
-  data = tabela_knn,
-  x = Department,
-  y = Attrition,
-  title = "Zależność odejść od działu",
-  xlab = "Dział",
-  ylab = "Proporcja odejść",
-  messages = FALSE
-)
+
+ggstatsplot::ggbarstats( data = tabela_knn, x = Department, y =
+Attrition, title = "Zależność odejść od działu", xlab = "Dział", ylab =
+"Proporcja odejść", messages = FALSE )
 
 # d) Zależność odejść od stanowiska
-ggstatsplot::ggbarstats(
-  data = tabela_knn,
-  x = JobRole,
-  y = Attrition,
-  title = "Zależność odejść od stanowiska",
-  xlab = "Stanowisko",
-  ylab = "Proporcja odejść",
-  messages = FALSE
-)
+
+ggstatsplot::ggbarstats( data = tabela_knn, x = JobRole, y = Attrition,
+title = "Zależność odejść od stanowiska", xlab = "Stanowisko", ylab =
+"Proporcja odejść", messages = FALSE )
 
 # e) Zależność między wiekiem a latami pracy w kontekście odejść
-ggstatsplot::ggscatterstats(
-  data = tabela_knn,
-  x = Age,
-  y = TotalWorkingYears,
-  title = "Zależność między wiekiem a latami pracy w kontekście odejść",
-  xlab = "Wiek",
-  ylab = "Lata pracy",
-  color = tabela_knn$Attrition,
-  messages = FALSE
-)
+
+ggstatsplot::ggscatterstats( data = tabela_knn, x = Age, y =
+TotalWorkingYears, title = "Zależność między wiekiem a latami pracy w
+kontekście odejść", xlab = "Wiek", ylab = "Lata pracy", color =
+tabela_knn\$Attrition, messages = FALSE )
