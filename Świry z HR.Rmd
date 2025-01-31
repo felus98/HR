@@ -129,7 +129,7 @@ vis_miss(tabela)
 Podsumowanie braków danych w formie tabeli.
 
 ```{r echo=TRUE}
-wybrane_kolumny <- tabela %>% select(Attrition, MonthlyIncome, Age)
+wybrane_kolumny <- dplyr::select(tabela, Attrition, MonthlyIncome, Age)
 miss_var_summary(wybrane_kolumny)
 ```
 
@@ -189,12 +189,7 @@ for (i in 1:nrow(violations)) {
 }
 ```
 
-Wypełnianie braków danych\*\* W tym etapie projektu wypełniliśmy braki
-danych.
-
-Wypełnienie braków danych - wszystkich wartosci
-
-# powyzsza metoda wypelnila wszystkie brakujace dane i sprwadza czy dane zostały uzupełnione
+Funkcja kNN() z pakietu VIM uzupełnia brakujące wartości w zbiorze danych za pomocą metody k najbliższych sąsiadów (k-Nearest Neighbors, k-NN). Wybiera k = 5 najbardziej podobnych obserwacji i na ich podstawie imputuje brakujące wartości. Dzięki temu powstaje nowy zbiór danych (tabela_knn), w którym luki w danych zostały zastąpione przewidywanymi wartościami.
 
 ```{r}
 tabela_knn <- kNN(tabela, k = 5)
@@ -202,7 +197,6 @@ sum(is.na(tabela_knn))
 ```
 
 Poniższy wykres przedstawia wartości odstające w badanej populacji.
-Dlaczego tutaj jest ten wykres?
 
 ```{r}
 boxplot(tabela$Age)
@@ -239,7 +233,7 @@ dopiero rozpoczynającą karierę.
 
 tabela_knn %>%
   filter(Age < 22, MonthlyIncome < 1500, YearsWithCurrManager < 5) %>%
-select(Age, BusinessTravel, Department, Education, Gender, MonthlyIncome, YearsWithCurrManager)
+  dplyr::select(Age, BusinessTravel, Department, Education, Gender, MonthlyIncome, YearsWithCurrManager)
   
 ```
 
@@ -651,9 +645,7 @@ Wniosek: Wykształcenie nie wpływa istotnie na rotację pracowników.
 ```{r}
 chisq.test(table(tabela_knn$Attrition, tabela_knn$Education))
 ```
-```{r}
-chisq.test(table(tabela_knn$Attrition, tabela_knn$Education))
-```
+
 ### **Test chi-kwadrat 2**
 Test Chi-kwadrat został użyty do zbadania, czy istnieje zależność między odejściem pracownika z firmy a stanowiskiem. Wnioski są następujące:
 - p-value < 0.05 co oznacza, że stanowisko ma bardzo duże znaczenie w kontekście odejść z pracy
@@ -686,7 +678,7 @@ summary(reg_model)
 Współczynnik Giniego mierzy nierówność rozkładu danej zmiennej – w tym przypadku wieku. Wiek w tej populacji jest stosunkowo równomiernie rozłożony, z niewielkimi różnicami między wartościami.
 ```{r}
 gini_coefficient <- Gini(tabela_knn$Age)
-gini_coefficient  # Współczynnik Giniego (0 - równość, 1 - nierówność)
+gini_coefficient
 ```
 ### **Krzywa Lorenza**
 Krzywa Lorenza przedstawia nierówność rozkładu danej zmiennej – w tym przypadku wieku. Czarna linia diagonalna – reprezentuje idealną równość (każdy ma taki sam wiek). Niebieska krzywa – pokazuje rzeczywisty rozkład wieku. Im bardziej oddala się od linii równości, tym większa nierówność. Krzywa Lorenza znajduje się blisko linii równości, co oznacza, że wiek jest stosunkowo równomiernie rozłożony.
