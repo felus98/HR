@@ -1,5 +1,5 @@
 ---
-title: "HR projekt Analiza danych"
+title: "HR projekt Analiza danych - Projekt dotyczy analizy odejść pracowników (Attrition) w firmie, mającej na celu zrozumienie, jakie czynniki wpływają na decyzję o opuszczeniu miejsca pracy. Skupiono się na zmiennych, takich jak wiek i miesięczne dochody, aby zidentyfikować różnice między pracownikami, którzy pozostali, a tymi, którzy odeszli."
 date: "`r Sys.Date()`"
 output:
   rmdformats::downcute:
@@ -270,6 +270,12 @@ tabela_knn %>%
     Średni_zarobek = mean(MonthlyIncome)
   ) %>%
   arrange(desc(Liczba_osób))
+```
+
+Wyświetlenie losowej próby danych za pomocą sample_n()
+```{r}
+tabela %>%
+  sample_n(5)
 ```
 
 ### **Podsumowanie**
@@ -553,7 +559,7 @@ lub nie otrzymują awansu. Wyniki te mogą być pomocne w opracowaniu
 skutecznych strategii zarządzania zasobami ludzkimi, które pozwolą na
 zwiększenie retencji pracowników i poprawę ich satysfakcji zawodowej.
 
-# **Etap 3. Analiza opisowa**
+# **Etap 3. Analiza opisowa i wnioskowanie statystyczne**
 
 ### **Wstęp**
 Analiza statystyczna pozwala zrozumieć, jakie czynniki mogą wpływać na decyzję pracowników o odejściu z firmy. Wykorzystane metody, takie jak testy t-Studenta, ANOVA, analiza korelacji czy regresja liniowa, pomagają w identyfikacji zależności między zmiennymi. Szczególną uwagę poświęcono zróżnicowaniu dochodów, wpływowi wieku na decyzje o pozostaniu w firmie oraz nierównościom w rozkładzie wieku.
@@ -685,70 +691,25 @@ Krzywa Lorenza przedstawia nierówność rozkładu danej zmiennej – w tym przy
 ```{r}
 plot(Lc(tabela_knn$Age), col = "blue", lwd = 2, main = "Krzywa Lorenza dla wieku")
 ```
-### **Podsumowanie**
-Przeprowadzone analizy wskazują, że osoby o niższych dochodach oraz młodsi pracownicy częściej decydują się na odejście. Dodatkowo, zmienne takie jak odległość od miejsca pracy czy konieczność pracy w nadgodzinach również wpływają na rotację pracowników. Wyniki te mogą być cenną wskazówką dla pracodawców w kontekście strategii retencji i polityki wynagrodzeń.
 
 
-# **Etap 4. Wnioskowanie statystyczne**
-
-# ==================================================
-
-# a) Test t-Studenta: Czy wiek różni się istotnie między osobami, które odeszły i zostały?
-
-t_test_age \<- t.test(Age \~ Attrition, data = tabela_knn)
-print(t_test_age)
-
-# b) Test t-Studenta: Czy dochód różni się istotnie między grupami Attrition?
-
-t_test_income \<- t.test(MonthlyIncome \~ Attrition, data = tabela_knn)
-print(t_test_income)
-
-# c) Test chi-kwadrat: Czy odejścia zależą od działu?
-
-chi_test_department \<-
-chisq.test(table(tabela_knn$Attrition, tabela_knn$Department))
-print(chi_test_department)
-
-# d) Test chi-kwadrat: Czy odejścia zależą od stanowiska?
-
-chi_test_jobrole \<-
-chisq.test(table(tabela_knn$Attrition, tabela_knn$JobRole))
-print(chi_test_jobrole)
-
-# ==================================================
-
-# WIZUALIZACJE Z ggstatsplot
-
-# ==================================================
-
-# a) Różnice wieku między osobami, które odeszły i zostały
-
-ggstatsplot::ggbetweenstats( data = tabela_knn, x = Attrition, y = Age,
+### **Różnice wieku między osobami, które odeszły i zostały**
+Pracownicy, którzy pozostali w firmie („No”), mają średni wiek 37,5 roku, podczas gdy ci, którzy odeszli („Yes”), średnio 33,33 roku. Test t (Welcha) wykazał istotną statystycznie różnicę (t = 6.13, p < 0.001), co wskazuje, że młodsi pracownicy częściej odchodzą z pracy. Rozkłady danych pokazują większą gęstość młodszych osób w grupie „Yes” oraz starszych w grupie „No”.
+```{r}
+ggstatsplot::ggbetweenstats(data = tabela_knn, x = Attrition, y = Age,
 title = "Porównanie wieku między osobami, które odeszły i zostały", xlab
 = "Attrition (Czy pracownik odszedł?)", ylab = "Wiek", messages = FALSE)
-
-# b) Porównanie miesięcznych dochodów między osobami, które odeszły i zostały
-
-ggstatsplot::ggbetweenstats( data = tabela_knn, x = Attrition, y =
+```
+### **Porównanie miesięcznych dochodów między osobami, które odeszły i zostały**
+Pracownicy, którzy pozostali w firmie („No”), mają średni miesięczny dochód μ = 6766.73, natomiast ci, którzy odeszli („Yes”), μ = 4725.49. Test t (Welcha) wskazuje istotną różnicę (t = 7.23, p < 0.001), co sugeruje, że osoby o niższych dochodach częściej odchodzą. Rozkłady pokazują większą gęstość wyższych dochodów w grupie „No” oraz niższych w grupie „Yes”.
+```{r}
+ggstatsplot::ggbetweenstats(data = tabela_knn, x = Attrition, y =
 MonthlyIncome, title = "Porównanie miesięcznych dochodów między osobami,
 które odeszły i zostały", xlab = "Attrition (Czy pracownik odszedł?)",
 ylab = "Miesięczny dochód", messages = FALSE )
+```
 
-# c) Zależność odejść od działu
+### **Podsumowanie**
+Przeprowadzone analizy wskazują, że osoby o niższych dochodach oraz młodsi pracownicy częściej decydują się na odejście. Dodatkowo, zmienne takie jak odległość od miejsca pracy czy konieczność pracy w nadgodzinach również wpływają na rotację pracowników. Wyniki te mogą być cenną wskazówką dla pracodawców w kontekście strategii retencji i polityki wynagrodzeń.
 
-ggstatsplot::ggbarstats( data = tabela_knn, x = Department, y =
-Attrition, title = "Zależność odejść od działu", xlab = "Dział", ylab =
-"Proporcja odejść", messages = FALSE )
-
-# d) Zależność odejść od stanowiska
-
-ggstatsplot::ggbarstats( data = tabela_knn, x = JobRole, y = Attrition,
-title = "Zależność odejść od stanowiska", xlab = "Stanowisko", ylab =
-"Proporcja odejść", messages = FALSE )
-
-# e) Zależność między wiekiem a latami pracy w kontekście odejść
-
-ggstatsplot::ggscatterstats( data = tabela_knn, x = Age, y =
-TotalWorkingYears, title = "Zależność między wiekiem a latami pracy w
-kontekście odejść", xlab = "Wiek", ylab = "Lata pracy", color =
-tabela_knn\$Attrition, messages = FALSE )
+Projekt koncentrował się na analizie odejść pracowników (Attrition) w kontekście kluczowych zmiennych, takich jak wiek i miesięczne dochody. Wykazano, że młodsi pracownicy oraz osoby o niższych zarobkach częściej opuszczają firmę, co potwierdziły istotne statystycznie testy t (Welcha). Rozkłady danych pokazały różnice w strukturze grup „zostałych” i „odeszłych”, podkreślając istotne wzorce w zatrzymywaniu pracowników. Średni wiek osób, które pozostały, wynosił 37,5 roku, podczas gdy tych, którzy odeszli, 33,33 roku, a średnie miesięczne dochody w tych grupach wynosiły odpowiednio 6766,73 i 4725,49. Analiza dostarczyła cennych informacji dla działu HR, wskazując na konieczność zwiększenia wsparcia dla młodszych pracowników i tych z niższymi dochodami. Wyniki te mogą pomóc w opracowaniu strategii retencji, minimalizując przyszłe odejścia z pracy.
