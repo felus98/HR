@@ -25,7 +25,7 @@ Powstawić można hipotezę badawczą - **co wpływa na odchodzenie z pracy
 przez pracowników?**
 
 Projekt zawiera się w czeterech głównych etapach: 1. Data cleansing,
-Wrangling, 2. Wizualizacja danych, 3. Analiza opisowa, 4. Wnioskowanie.
+Wrangling, 2. Wizualizacja danych, 3. Analiza opisowa i wnioskowanie statystyczne.
 
 Celem projektu jest wykonanie analizy skupiając się na zmiennej
 'attrition', opartej na przygotowanym zbiorze danych.
@@ -189,7 +189,12 @@ for (i in 1:nrow(violations)) {
 }
 ```
 
-Funkcja kNN() z pakietu VIM uzupełnia brakujące wartości w zbiorze danych za pomocą metody k najbliższych sąsiadów (k-Nearest Neighbors, k-NN). Wybiera k = 5 najbardziej podobnych obserwacji i na ich podstawie imputuje brakujące wartości. Dzięki temu powstaje nowy zbiór danych (tabela_knn), w którym luki w danych zostały zastąpione przewidywanymi wartościami.
+Funkcja kNN() z pakietu VIM uzupełnia brakujące wartości w zbiorze
+danych za pomocą metody k najbliższych sąsiadów (k-Nearest Neighbors,
+k-NN). Wybiera k = 5 najbardziej podobnych obserwacji i na ich podstawie
+imputuje brakujące wartości. Dzięki temu powstaje nowy zbiór danych
+(tabela_knn), w którym luki w danych zostały zastąpione przewidywanymi
+wartościami.
 
 ```{r}
 tabela_knn <- kNN(tabela, k = 5)
@@ -273,6 +278,7 @@ tabela_knn %>%
 ```
 
 Wyświetlenie losowej próby danych za pomocą sample_n()
+
 ```{r}
 tabela %>%
   sample_n(5)
@@ -501,7 +507,7 @@ ggplot(data = melted_cor_matrix, aes(x = Var1, y = Var2, fill = value)) +
   coord_fixed()
 ```
 
-### **Wykres 9 - Korelacja wybranych zmiennych (płec, wiek, stan cywilny) względem odejść pracowników\*\*
+### **Wykres 9 - Korelacja wybranych zmiennych (płec, wiek, stan cywilny) względem odejść pracowników**
 
 -   Proporcje odejść wśród mężczyzn i kobiet są bardzo zbliżone. Płeć
     nie wydaje się zatem istotnym czynnikiem wpływającym na odejścia.
@@ -562,13 +568,29 @@ zwiększenie retencji pracowników i poprawę ich satysfakcji zawodowej.
 # **Etap 3. Analiza opisowa i wnioskowanie statystyczne**
 
 ### **Wstęp**
-Analiza statystyczna pozwala zrozumieć, jakie czynniki mogą wpływać na decyzję pracowników o odejściu z firmy. Wykorzystane metody, takie jak testy t-Studenta, ANOVA, analiza korelacji czy regresja liniowa, pomagają w identyfikacji zależności między zmiennymi. Szczególną uwagę poświęcono zróżnicowaniu dochodów, wpływowi wieku na decyzje o pozostaniu w firmie oraz nierównościom w rozkładzie wieku.
+
+Analiza statystyczna pozwala zrozumieć, jakie czynniki mogą wpływać na
+decyzję pracowników o odejściu z firmy. Wykorzystane metody, takie jak
+testy t-Studenta, ANOVA, analiza korelacji czy regresja liniowa,
+pomagają w identyfikacji zależności między zmiennymi. Szczególną uwagę
+poświęcono zróżnicowaniu dochodów, wpływowi wieku na decyzje o
+pozostaniu w firmie oraz nierównościom w rozkładzie wieku.
 
 ### **Podstawowe statystyki wieku w zależności od odejścia**
-Tabela pokazuje średni dochód, medianę oraz odchylenie standardowe wynagrodzenia dla dwóch grup pracowników - tych którzy odeszli z firmy i tych którzy w niej zostali. 
-Pracownicy, którzy nie odeszli, mają wyższy średni dochód niż ci, którzy odeszli. To sugeruje, że osoby z niższym wynagrodzeniem częściej odchodzą.
-Mediana również pokazuje znaczącą różnicę: 5189.5 (pozostali) vs. 3017.5 (odeszli). Oznacza to, że większość osób odchodzących zarabiała znacznie mniej niż większość tych, którzy zostali.
-W obu grupach odchylenie standardowe jest wysokie, co oznacza duże zróżnicowanie wynagrodzeń. Jednak pracownicy, którzy pozostali, mają większe zróżnicowanie płac (4775 vs. 3662), co sugeruje, że w tej grupie mogą być zarówno osoby z wysokimi, jak i niskimi zarobkami.
+
+Tabela pokazuje średni dochód, medianę oraz odchylenie standardowe
+wynagrodzenia dla dwóch grup pracowników - tych którzy odeszli z firmy i
+tych którzy w niej zostali. Pracownicy, którzy nie odeszli, mają wyższy
+średni dochód niż ci, którzy odeszli. To sugeruje, że osoby z niższym
+wynagrodzeniem częściej odchodzą. Mediana również pokazuje znaczącą
+różnicę: 5189.5 (pozostali) vs. 3017.5 (odeszli). Oznacza to, że
+większość osób odchodzących zarabiała znacznie mniej niż większość tych,
+którzy zostali. W obu grupach odchylenie standardowe jest wysokie, co
+oznacza duże zróżnicowanie wynagrodzeń. Jednak pracownicy, którzy
+pozostali, mają większe zróżnicowanie płac (4775 vs. 3662), co sugeruje,
+że w tej grupie mogą być zarówno osoby z wysokimi, jak i niskimi
+zarobkami.
+
 ```{r}
 income_summary <- tabela_knn %>% group_by(Attrition) %>%
 summarise(Średni_dochód = round(mean(MonthlyIncome, na.rm = TRUE), 0),
@@ -579,21 +601,28 @@ print(income_summary)
 ```
 
 ### **Miary pozycyjne**
-Wyniki przedstawiają kwartyle oraz rozstęp międzykwartylowy (IQR) dla wieku. Wynika z tego, że:
-- 25% obserwacji ma wartość wieku mniejszą lub równą 30
-- Połowa wartości wieku jest mniejsza lub równa 35
-- 75% obserwacji ma wartość wieku mniejszą lub równą 43
-- 13 - zakres, w którym znajduje się środkowe 50% danych
+
+Wyniki przedstawiają kwartyle oraz rozstęp międzykwartylowy (IQR) dla
+wieku. Wynika z tego, że: - 25% obserwacji ma wartość wieku mniejszą lub
+równą 30 - Połowa wartości wieku jest mniejsza lub równa 35 - 75%
+obserwacji ma wartość wieku mniejszą lub równą 43 - 13 - zakres, w
+którym znajduje się środkowe 50% danych
+
 ```{r}
 quantile(tabela_knn$Age, probs = c(0.25, 0.5, 0.75))
 IQR(tabela_knn$Age)
 ```
+
 ### **Miary zróżnicowania**
-Policzono trzy miary zróżnicowania, kolejno: rozstęp, wariancję i odchylenie standardowe. Wyniki są następujące:
-- Najmłodsza osoba w zbiorze danych ma 18 lat, a najstarsza 60 lat (zakres wieku to 42 lata)
-- wysoka wartość wariancji sugeruje, że wartości są rozproszone i zróżnicowanie
-- przeciętnie, wartości wieku różnią się od średniej o prawie 9 lat
-- dane są stosunkowo wysoko zróżnicowane względem ich średniej wartości
+
+Policzono trzy miary zróżnicowania, kolejno: rozstęp, wariancję i
+odchylenie standardowe. Wyniki są następujące: - Najmłodsza osoba w
+zbiorze danych ma 18 lat, a najstarsza 60 lat (zakres wieku to 42
+lata) - wysoka wartość wariancji sugeruje, że wartości są rozproszone i
+zróżnicowanie - przeciętnie, wartości wieku różnią się od średniej o
+prawie 9 lat - dane są stosunkowo wysoko zróżnicowane względem ich
+średniej wartości
+
 ```{r}
 range(tabela_knn$Age)
 var(tabela_knn$Age)
@@ -601,18 +630,27 @@ sd(tabela_knn$Age)
 cv_age <- sd(tabela_knn$Age) / mean(tabela_knn$Age) * 100
 cv_age
 ```
+
 ### **Analiza rozkładu danych**
-Poniżej, obliczono wartość skośności oraz kurtozy, aby określić rozkład danych. Skośność wieku wynosi 0,46 - dodatnia wartość wskazuje na skośność prawostronną oraz więcej młodszych pracowników. Kurtoza wieku wynosi 2,67, co oznacza, że rozkład wieku jest lekko spłaszczony rozkład w porównaniu do normalnego.
+
+Poniżej, obliczono wartość skośności oraz kurtozy, aby określić rozkład
+danych. Skośność wieku wynosi 0,46 - dodatnia wartość wskazuje na
+skośność prawostronną oraz więcej młodszych pracowników. Kurtoza wieku
+wynosi 2,67, co oznacza, że rozkład wieku jest lekko spłaszczony rozkład
+w porównaniu do normalnego.
+
 ```{r}
 skewness(tabela_knn$Age)
 kurtosis(tabela_knn$Age)
 ```
 
 ### **Reguła empiryczna**
-W celu policzenia reguł empirycznych wybrano trzy wartości: 68%, 95% i 99,7% obserwacji. Oznacza to, że:
-- 68% pracowników mieści się w przedziale 27-46 lat
-- 95% mieści się w przedziale 19-55 lat
-- 99,7% mieści się w przedziale 10-64 lat
+
+W celu policzenia reguł empirycznych wybrano trzy wartości: 68%, 95% i
+99,7% obserwacji. Oznacza to, że: - 68% pracowników mieści się w
+przedziale 27-46 lat - 95% mieści się w przedziale 19-55 lat - 99,7%
+mieści się w przedziale 10-64 lat
+
 ```{r}
 mean_age <- mean(tabela_knn$Age)
 sd_age <- sd(tabela_knn$Age)
@@ -620,59 +658,108 @@ c(mean_age - sd_age, mean_age + sd_age)  # 68% obserwacji
 c(mean_age - 2*sd_age, mean_age + 2*sd_age)  # 95% obserwacji
 c(mean_age - 3*sd_age, mean_age + 3*sd_age)  # 99.7% obserwacji
 ```
+
 ### **Testy normlaności**
-Test Shapiro-Wilka służy do sprawdzenia normalności rozkładu danej zmiennej. Hipotezowa zerowa mówi, że dane pochodzą z rozkładu zerowego, na rzecz alternatywy, że tak nie jest. Z racji, że wartość p-value jest niższa niż 0.01 odrzucamy hipotezę zerową na rzecz alternatywy. Oznacza to, że rozkład wieku nie jest normalny w obydwóch badanych przypadkach zmiennych.
+
+Test Shapiro-Wilka służy do sprawdzenia normalności rozkładu danej
+zmiennej. Hipotezowa zerowa mówi, że dane pochodzą z rozkładu zerowego,
+na rzecz alternatywy, że tak nie jest. Z racji, że wartość p-value jest
+niższa niż 0.01 odrzucamy hipotezę zerową na rzecz alternatywy. Oznacza
+to, że rozkład wieku nie jest normalny w obydwóch badanych przypadkach
+zmiennych.
+
 ```{r}
 shapiro.test(tabela_knn$Age)
 shapiro.test(tabela_knn$TotalWorkingYears)
 ```
+
 ### **Test t-Studenta**
-Zastosowano test t-Studenta, aby porównać średni wiek pracowników, którzy zostali w firmie z tymi, którzy odeszli. Wyniki są następujące:
-- P-value jest ekstremalnie niskie (p < 0.05), więc istnieje istotna statystycznie różnica między średnimi wieku pracowników, którzy zostali, a tych, którzy odeszli.
-- Średnia wieku pracowników, którzy pozostali w firmie, wynosi 37.50 lat, podczas gdy średnia wieku osób, które odeszły, to 33.33 lat.
-- Przedział ufności (2.83 – 5.51) nie obejmuje zera, co dodatkowo potwierdza, że różnica między grupami jest statystycznie istotna.
+
+Zastosowano test t-Studenta, aby porównać średni wiek pracowników,
+którzy zostali w firmie z tymi, którzy odeszli. Wyniki są następujące: -
+P-value jest ekstremalnie niskie (p \< 0.05), więc istnieje istotna
+statystycznie różnica między średnimi wieku pracowników, którzy zostali,
+a tych, którzy odeszli. - Średnia wieku pracowników, którzy pozostali w
+firmie, wynosi 37.50 lat, podczas gdy średnia wieku osób, które odeszły,
+to 33.33 lat. - Przedział ufności (2.83 – 5.51) nie obejmuje zera, co
+dodatkowo potwierdza, że różnica między grupami jest statystycznie
+istotna.
+
 ```{r}
 t.test(Age ~ Attrition, data = tabela_knn)
 ```
+
 ### **ANOVA**
-Analiza wariancji została zastosowana do sprawdzenia, czy istnieją istotne różnice w liczbie lat pracy między pracownikami różnych działów. Wnioski są następujące:
-- P-value = 0.83, co oznacza, że nie ma istotnych statystycznie różnic w liczbie lat pracy
-- Niska wartość F (0.18) sugeruje, że różnice między średnimi dla działów są bardzo małe w porównaniu do zmienności wewnątrz grup.
-Przynależność do działu nie wpływa istotnie na liczbę lat pracy – staż pracowników jest podobny niezależnie od działu.
+
+Analiza wariancji została zastosowana do sprawdzenia, czy istnieją
+istotne różnice w liczbie lat pracy między pracownikami różnych działów.
+Wnioski są następujące: - P-value = 0.83, co oznacza, że nie ma
+istotnych statystycznie różnic w liczbie lat pracy - Niska wartość F
+(0.18) sugeruje, że różnice między średnimi dla działów są bardzo małe w
+porównaniu do zmienności wewnątrz grup. Przynależność do działu nie
+wpływa istotnie na liczbę lat pracy – staż pracowników jest podobny
+niezależnie od działu.
+
 ```{r}
 anova_model <- aov(TotalWorkingYears ~ Department, data = tabela_knn)
 summary(anova_model)
 ```
+
 ### **Test chi-kwadrat**
-Test Chi-kwadrat został użyty do zbadania, czy istnieje zależność między odejściem pracownika z firmy a poziomem wykształcenia. Wnioski są następujące:
-- p-value = 0.314, co oznacza, że poziom wykształcenia nie ma istotnego wpływu na decyzję o odejściu z firmy.
-- staystyka jest niska, co oznacza, że różnice między rzeczywistymi a oczekiwanymi wartościami są niewielkie.
-Wniosek: Wykształcenie nie wpływa istotnie na rotację pracowników.
+
+Test Chi-kwadrat został użyty do zbadania, czy istnieje zależność między
+odejściem pracownika z firmy a poziomem wykształcenia. Wnioski są
+następujące: - p-value = 0.314, co oznacza, że poziom wykształcenia nie
+ma istotnego wpływu na decyzję o odejściu z firmy. - staystyka jest
+niska, co oznacza, że różnice między rzeczywistymi a oczekiwanymi
+wartościami są niewielkie. Wniosek: Wykształcenie nie wpływa istotnie na
+rotację pracowników.
+
 ```{r}
 chisq.test(table(tabela_knn$Attrition, tabela_knn$Education))
 ```
 
 ### **Test chi-kwadrat 2**
-Test Chi-kwadrat został użyty do zbadania, czy istnieje zależność między odejściem pracownika z firmy a stanowiskiem. Wnioski są następujące:
-- p-value < 0.05 co oznacza, że stanowisko ma bardzo duże znaczenie w kontekście odejść z pracy
-- staystyka jest wysoka, co oznacza, różnice między rzeczywistymi a oczekiwanymi wartościami są duże.
-Wniosek: Odejścia są silnie zależne od stanowiska. Niektóre stanowiska mogą mieć znacznie większą rotację niż inne.
+
+Test Chi-kwadrat został użyty do zbadania, czy istnieje zależność między
+odejściem pracownika z firmy a stanowiskiem. Wnioski są następujące: -
+p-value \< 0.05 co oznacza, że stanowisko ma bardzo duże znaczenie w
+kontekście odejść z pracy - staystyka jest wysoka, co oznacza, różnice
+między rzeczywistymi a oczekiwanymi wartościami są duże. Wniosek:
+Odejścia są silnie zależne od stanowiska. Niektóre stanowiska mogą mieć
+znacznie większą rotację niż inne.
+
 ```{r}
 chisq.test(table(tabela_knn$Attrition, tabela_knn$JobRole))
 ```
+
 ### **Test korelacji Pearsona**
-Zbadano korelację pomiędzy wiekiem a całkowitą liczbą lat pracy. Wysoka wartość statystyki wskazuje na silną zależność między zmiennymi. Bardzo niska wartość p-value oznacza, że możemy odrzucić hipotezę zerową stanowiącą o braku korelacji pomiędzy wiekiem a całkowitą liczbą lat pracy. Całkiem wysoka wartość współczynnika oznacza, że im wyższy wiek, tym większa liczba lat przepracowanych.
+
+Zbadano korelację pomiędzy wiekiem a całkowitą liczbą lat pracy. Wysoka
+wartość statystyki wskazuje na silną zależność między zmiennymi. Bardzo
+niska wartość p-value oznacza, że możemy odrzucić hipotezę zerową
+stanowiącą o braku korelacji pomiędzy wiekiem a całkowitą liczbą lat
+pracy. Całkiem wysoka wartość współczynnika oznacza, że im wyższy wiek,
+tym większa liczba lat przepracowanych.
+
 ```{r}
 cor.test(tabela_knn$Age, tabela_knn$TotalWorkingYears)
 ```
+
 ### **Regresja liniowa**
-Poniżej sformułowano regresję liniową, w której odejscia z pracy są wyjaśniane przez wiek oraz dochód. Z regresji tej wynika, że:
-- każdy dodatkowy rok życia zmniejsza prawdopodobienstwo odejścia z pracy o 0.00465
-- z każdym wzrostem miesięcznego wynagrodzenia o 1 zmniejsza prawdopodobienstwo odejścia z pracy o 0.00000736
-- zwiększenie dystansu od domu o 1 jednostkę zwiększa prawdopodobienstwo odejścia z pracy o 0.00382
-- kazdy dodatkoy rok pracy w firmie zmniejsza prawdopodobienstwo odejścia z pracy o 0.00669
-- kiedy pracownik ma nadgodziny to zwiększa się prawdopodobienstwo odejścia z pracy o 0.18509, niż gdyby ich nie miał
-. Wszystkie zmienne są istotne statystycznie na poziomie przynajmniej 1%. Model wyjaśniany jest w 11,3%.
+
+Poniżej sformułowano regresję liniową, w której odejscia z pracy są
+wyjaśniane przez wiek oraz dochód. Z regresji tej wynika, że: - każdy
+dodatkowy rok życia zmniejsza prawdopodobienstwo odejścia z pracy o
+0.00465 - z każdym wzrostem miesięcznego wynagrodzenia o 1 zmniejsza
+prawdopodobienstwo odejścia z pracy o 0.00000736 - zwiększenie dystansu
+od domu o 1 jednostkę zwiększa prawdopodobienstwo odejścia z pracy o
+0.00382 - kazdy dodatkoy rok pracy w firmie zmniejsza prawdopodobienstwo
+odejścia z pracy o 0.00669 - kiedy pracownik ma nadgodziny to zwiększa
+się prawdopodobienstwo odejścia z pracy o 0.18509, niż gdyby ich nie
+miał . Wszystkie zmienne są istotne statystycznie na poziomie
+przynajmniej 1%. Model wyjaśniany jest w 11,3%.
+
 ```{r}
 tabela_knn_num <- tabela_knn
 tabela_knn_num$Attrition <- as.numeric(as.factor(tabela_knn_num$Attrition)) - 1 
@@ -680,28 +767,55 @@ tabela_knn_num$OverTime <- as.numeric(as.factor(tabela_knn_num$OverTime)) - 1
 reg_model <- lm(Attrition ~ Age+MonthlyIncome+DistanceFromHome+JobSatisfaction+YearsAtCompany+OverTime+YearsSinceLastPromotion, data = tabela_knn_num)
 summary(reg_model)
 ```
+
 ### **Współczynnik Giniego**
-Współczynnik Giniego mierzy nierówność rozkładu danej zmiennej – w tym przypadku wieku. Wiek w tej populacji jest stosunkowo równomiernie rozłożony, z niewielkimi różnicami między wartościami.
+
+Współczynnik Giniego mierzy nierówność rozkładu danej zmiennej – w tym
+przypadku wieku. Wiek w tej populacji jest stosunkowo równomiernie
+rozłożony, z niewielkimi różnicami między wartościami.
+
 ```{r}
 gini_coefficient <- Gini(tabela_knn$Age)
 gini_coefficient
 ```
+
 ### **Krzywa Lorenza**
-Krzywa Lorenza przedstawia nierówność rozkładu danej zmiennej – w tym przypadku wieku. Czarna linia diagonalna – reprezentuje idealną równość (każdy ma taki sam wiek). Niebieska krzywa – pokazuje rzeczywisty rozkład wieku. Im bardziej oddala się od linii równości, tym większa nierówność. Krzywa Lorenza znajduje się blisko linii równości, co oznacza, że wiek jest stosunkowo równomiernie rozłożony.
+
+Krzywa Lorenza przedstawia nierówność rozkładu danej zmiennej – w tym
+przypadku wieku. Czarna linia diagonalna – reprezentuje idealną równość
+(każdy ma taki sam wiek). Niebieska krzywa – pokazuje rzeczywisty
+rozkład wieku. Im bardziej oddala się od linii równości, tym większa
+nierówność. Krzywa Lorenza znajduje się blisko linii równości, co
+oznacza, że wiek jest stosunkowo równomiernie rozłożony.
+
 ```{r}
 plot(Lc(tabela_knn$Age), col = "blue", lwd = 2, main = "Krzywa Lorenza dla wieku")
 ```
 
-
 ### **Różnice wieku między osobami, które odeszły i zostały**
-Pracownicy, którzy pozostali w firmie („No”), mają średni wiek 37,5 roku, podczas gdy ci, którzy odeszli („Yes”), średnio 33,33 roku. Test t (Welcha) wykazał istotną statystycznie różnicę (t = 6.13, p < 0.001), co wskazuje, że młodsi pracownicy częściej odchodzą z pracy. Rozkłady danych pokazują większą gęstość młodszych osób w grupie „Yes” oraz starszych w grupie „No”.
+
+Pracownicy, którzy pozostali w firmie („No”), mają średni wiek 37,5
+roku, podczas gdy ci, którzy odeszli („Yes”), średnio 33,33 roku. Test t
+(Welcha) wykazał istotną statystycznie różnicę (t = 6.13, p \< 0.001),
+co wskazuje, że młodsi pracownicy częściej odchodzą z pracy. Rozkłady
+danych pokazują większą gęstość młodszych osób w grupie „Yes” oraz
+starszych w grupie „No”.
+
 ```{r}
 ggstatsplot::ggbetweenstats(data = tabela_knn, x = Attrition, y = Age,
 title = "Porównanie wieku między osobami, które odeszły i zostały", xlab
 = "Attrition (Czy pracownik odszedł?)", ylab = "Wiek", messages = FALSE)
 ```
+
 ### **Porównanie miesięcznych dochodów między osobami, które odeszły i zostały**
-Pracownicy, którzy pozostali w firmie („No”), mają średni miesięczny dochód μ = 6766.73, natomiast ci, którzy odeszli („Yes”), μ = 4725.49. Test t (Welcha) wskazuje istotną różnicę (t = 7.23, p < 0.001), co sugeruje, że osoby o niższych dochodach częściej odchodzą. Rozkłady pokazują większą gęstość wyższych dochodów w grupie „No” oraz niższych w grupie „Yes”.
+
+Pracownicy, którzy pozostali w firmie („No”), mają średni miesięczny
+dochód μ = 6766.73, natomiast ci, którzy odeszli („Yes”), μ = 4725.49.
+Test t (Welcha) wskazuje istotną różnicę (t = 7.23, p \< 0.001), co
+sugeruje, że osoby o niższych dochodach częściej odchodzą. Rozkłady
+pokazują większą gęstość wyższych dochodów w grupie „No” oraz niższych w
+grupie „Yes”.
+
 ```{r}
 ggstatsplot::ggbetweenstats(data = tabela_knn, x = Attrition, y =
 MonthlyIncome, title = "Porównanie miesięcznych dochodów między osobami,
@@ -710,6 +824,24 @@ ylab = "Miesięczny dochód", messages = FALSE )
 ```
 
 ### **Podsumowanie**
-Przeprowadzone analizy wskazują, że osoby o niższych dochodach oraz młodsi pracownicy częściej decydują się na odejście. Dodatkowo, zmienne takie jak odległość od miejsca pracy czy konieczność pracy w nadgodzinach również wpływają na rotację pracowników. Wyniki te mogą być cenną wskazówką dla pracodawców w kontekście strategii retencji i polityki wynagrodzeń.
 
-Projekt koncentrował się na analizie odejść pracowników (Attrition) w kontekście kluczowych zmiennych, takich jak wiek i miesięczne dochody. Wykazano, że młodsi pracownicy oraz osoby o niższych zarobkach częściej opuszczają firmę, co potwierdziły istotne statystycznie testy t (Welcha). Rozkłady danych pokazały różnice w strukturze grup „zostałych” i „odeszłych”, podkreślając istotne wzorce w zatrzymywaniu pracowników. Średni wiek osób, które pozostały, wynosił 37,5 roku, podczas gdy tych, którzy odeszli, 33,33 roku, a średnie miesięczne dochody w tych grupach wynosiły odpowiednio 6766,73 i 4725,49. Analiza dostarczyła cennych informacji dla działu HR, wskazując na konieczność zwiększenia wsparcia dla młodszych pracowników i tych z niższymi dochodami. Wyniki te mogą pomóc w opracowaniu strategii retencji, minimalizując przyszłe odejścia z pracy.
+Przeprowadzone analizy wskazują, że osoby o niższych dochodach oraz
+młodsi pracownicy częściej decydują się na odejście. Dodatkowo, zmienne
+takie jak odległość od miejsca pracy czy konieczność pracy w
+nadgodzinach również wpływają na rotację pracowników. Wyniki te mogą być
+cenną wskazówką dla pracodawców w kontekście strategii retencji i
+polityki wynagrodzeń.
+
+Projekt koncentrował się na analizie odejść pracowników (Attrition) w
+kontekście kluczowych zmiennych, takich jak wiek i miesięczne dochody.
+Wykazano, że młodsi pracownicy oraz osoby o niższych zarobkach częściej
+opuszczają firmę, co potwierdziły istotne statystycznie testy t
+(Welcha). Rozkłady danych pokazały różnice w strukturze grup „zostałych”
+i „odeszłych”, podkreślając istotne wzorce w zatrzymywaniu pracowników.
+Średni wiek osób, które pozostały, wynosił 37,5 roku, podczas gdy tych,
+którzy odeszli, 33,33 roku, a średnie miesięczne dochody w tych grupach
+wynosiły odpowiednio 6766,73 i 4725,49. Analiza dostarczyła cennych
+informacji dla działu HR, wskazując na konieczność zwiększenia wsparcia
+dla młodszych pracowników i tych z niższymi dochodami. Wyniki te mogą
+pomóc w opracowaniu strategii retencji, minimalizując przyszłe odejścia
+z pracy.
