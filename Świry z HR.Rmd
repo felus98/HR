@@ -501,7 +501,7 @@ ggplot(data = melted_cor_matrix, aes(x = Var1, y = Var2, fill = value)) +
   coord_fixed()
 ```
 
-### \*\*Wykres 9 - Korelacja wybranych zmiennych (płec, wiek, stan cywilny) względem odejść pracowników\*\*
+### **Wykres 9 - Korelacja wybranych zmiennych (płec, wiek, stan cywilny) względem odejść pracowników\*\*
 
 -   Proporcje odejść wśród mężczyzn i kobiet są bardzo zbliżone. Płeć
     nie wydaje się zatem istotnym czynnikiem wpływającym na odejścia.
@@ -562,19 +562,20 @@ zwiększenie retencji pracowników i poprawę ich satysfakcji zawodowej.
 # **Etap 3. Analiza opisowa**
 
 ### **Wstęp**
+Analiza statystyczna pozwala zrozumieć, jakie czynniki mogą wpływać na decyzję pracowników o odejściu z firmy. Wykorzystane metody, takie jak testy t-Studenta, ANOVA, analiza korelacji czy regresja liniowa, pomagają w identyfikacji zależności między zmiennymi. Szczególną uwagę poświęcono zróżnicowaniu dochodów, wpływowi wieku na decyzje o pozostaniu w firmie oraz nierównościom w rozkładzie wieku.
 
-### **Podstawowe statystyki opisowe**
-
-Policzono podstawowe statystyki opisowe takie jak mediana, moda,
-odchylenie stadardowe, minimum, maksimum itd. dla trzech wybranych
-zmiennych (wiek, średnie wynagordzenie dzienne, dystans z domu do
-pracy). Wyniki zaprezentowano w tabeli poniżej. Przykładowo dla wieku:
-średnia wynosi 36,88 lat, połowa pracowników ma mniej, a połowa więcej
-niż 35 lat, czy rozpiętość wieku wynosi 18-60 lat.
-
+### **Podstawowe statystyki wieku w zależności od odejścia**
+Tabela pokazuje średni dochód, medianę oraz odchylenie standardowe wynagrodzenia dla dwóch grup pracowników - tych którzy odeszli z firmy i tych którzy w niej zostali. 
+Pracownicy, którzy nie odeszli, mają wyższy średni dochód niż ci, którzy odeszli. To sugeruje, że osoby z niższym wynagrodzeniem częściej odchodzą.
+Mediana również pokazuje znaczącą różnicę: 5189.5 (pozostali) vs. 3017.5 (odeszli). Oznacza to, że większość osób odchodzących zarabiała znacznie mniej niż większość tych, którzy zostali.
+W obu grupach odchylenie standardowe jest wysokie, co oznacza duże zróżnicowanie wynagrodzeń. Jednak pracownicy, którzy pozostali, mają większe zróżnicowanie płac (4775 vs. 3662), co sugeruje, że w tej grupie mogą być zarówno osoby z wysokimi, jak i niskimi zarobkami.
 ```{r}
-describe_tabela <- describe(tabela_knn[, c("Age", "DailyRate", "DistanceFromHome")])
-print(describe_tabela)
+income_summary <- tabela_knn %>% group_by(Attrition) %>%
+summarise(Średni_dochód = round(mean(MonthlyIncome, na.rm = TRUE), 0),
+Mediana_dochodu = median(MonthlyIncome, na.rm = TRUE),
+Odchylenie_standardowe = round(sd(MonthlyIncome, na.rm = TRUE), 0))
+
+print(income_summary)
 ```
 
 ### **Miary pozycyjne**
@@ -667,63 +668,36 @@ Zbadano korelację pomiędzy wiekiem a całkowitą liczbą lat pracy. Wysoka war
 cor.test(tabela_knn$Age, tabela_knn$TotalWorkingYears)
 ```
 ### **Regresja liniowa**
-Poniżej sformułowano regresję liniową, w której odejscia z pracy są wyjaśniane przez wiek oraz dochód. Z regresji tej wynika, że każdy dodatkowy rok życia zwię
+Poniżej sformułowano regresję liniową, w której odejscia z pracy są wyjaśniane przez wiek oraz dochód. Z regresji tej wynika, że:
+- każdy dodatkowy rok życia zmniejsza prawdopodobienstwo odejścia z pracy o 0.00465
+- z każdym wzrostem miesięcznego wynagrodzenia o 1 zmniejsza prawdopodobienstwo odejścia z pracy o 0.00000736
+- zwiększenie dystansu od domu o 1 jednostkę zwiększa prawdopodobienstwo odejścia z pracy o 0.00382
+- kazdy dodatkoy rok pracy w firmie zmniejsza prawdopodobienstwo odejścia z pracy o 0.00669
+- kiedy pracownik ma nadgodziny to zwiększa się prawdopodobienstwo odejścia z pracy o 0.18509, niż gdyby ich nie miał
+. Wszystkie zmienne są istotne statystycznie na poziomie przynajmniej 1%. Model wyjaśniany jest w 11,3%.
 ```{r}
-reg_model <- lm(Attrition ~ Age+MonthlyIncome, data = tabela_knn)
+tabela_knn_num <- tabela_knn
+tabela_knn_num$Attrition <- as.numeric(as.factor(tabela_knn_num$Attrition)) - 1 
+tabela_knn_num$OverTime <- as.numeric(as.factor(tabela_knn_num$OverTime)) - 1
+reg_model <- lm(Attrition ~ Age+MonthlyIncome+DistanceFromHome+JobSatisfaction+YearsAtCompany+OverTime+YearsSinceLastPromotion, data = tabela_knn_num)
 summary(reg_model)
 ```
-
-# Wykres regresji
-
-```{r}
-ggplot(tabela_knn, aes(x = Age, y = TotalWorkingYears)) +
-  geom_point() +
-  geom_smooth(method = "lm", col = "red") +
-  ggtitle("Regresja liniowa: Wiek vs Lata pracy") +
-  xlab("Wiek") +
-  ylab("Lata pracy")
-```
-
-# 7. NIERÓWNOŚCI DOCHODOWE (WSPÓŁCZYNNIK GINIEGO)
-
+### **Współczynnik Giniego**
+Współczynnik Giniego mierzy nierówność rozkładu danej zmiennej – w tym przypadku wieku. Wiek w tej populacji jest stosunkowo równomiernie rozłożony, z niewielkimi różnicami między wartościami.
 ```{r}
 gini_coefficient <- Gini(tabela_knn$Age)
 gini_coefficient  # Współczynnik Giniego (0 - równość, 1 - nierówność)
 ```
-
-# Krzywa Lorenza
-
+### **Krzywa Lorenza**
+Krzywa Lorenza przedstawia nierówność rozkładu danej zmiennej – w tym przypadku wieku. Czarna linia diagonalna – reprezentuje idealną równość (każdy ma taki sam wiek). Niebieska krzywa – pokazuje rzeczywisty rozkład wieku. Im bardziej oddala się od linii równości, tym większa nierówność. Krzywa Lorenza znajduje się blisko linii równości, co oznacza, że wiek jest stosunkowo równomiernie rozłożony.
 ```{r}
 plot(Lc(tabela_knn$Age), col = "blue", lwd = 2, main = "Krzywa Lorenza dla wieku")
 ```
+### **Podsumowanie**
+Przeprowadzone analizy wskazują, że osoby o niższych dochodach oraz młodsi pracownicy częściej decydują się na odejście. Dodatkowo, zmienne takie jak odległość od miejsca pracy czy konieczność pracy w nadgodzinach również wpływają na rotację pracowników. Wyniki te mogą być cenną wskazówką dla pracodawców w kontekście strategii retencji i polityki wynagrodzeń.
 
-attrition_summary \<- tabela_knn %\>% group_by(Attrition) %\>%
-summarise(Liczba = n(), Procent = round(n() / nrow(tabela_knn) \* 100,
-2))
 
-print(attrition_summary)
-
-# Podstawowe statystyki wieku w zależności od odejścia
-
-age_summary \<- tabela_knn %\>% group_by(Attrition) %\>%
-summarise(Średni_wiek = round(mean(Age, na.rm = TRUE), 0), Mediana_wieku
-= median(Age, na.rm = TRUE), Odchylenie_standardowe = round(sd(Age,
-na.rm = TRUE), 1))
-
-print(age_summary)
-
-# Podstawowe statystyki dochodów w zależności od odejścia
-
-income_summary \<- tabela_knn %\>% group_by(Attrition) %\>%
-summarise(Średni_dochód = round(mean(MonthlyIncome, na.rm = TRUE), 0),
-Mediana_dochodu = median(MonthlyIncome, na.rm = TRUE),
-Odchylenie_standardowe = round(sd(MonthlyIncome, na.rm = TRUE), 0))
-
-print(income_summary)
-
-# ==================================================
-
-# WNIOSKOWANIE STATYSTYCZNE
+# **Etap 4. Wnioskowanie statystyczne**
 
 # ==================================================
 
