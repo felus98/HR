@@ -611,9 +611,49 @@ wieku. Wynika z tego, że:
 -   (30 - 43) rozstęp 13-stu lat, w którym znajduje się środkowe 50%
     danych
 
+
 ```{r}
-quantile(tabela_knn$Age, probs = c(0.25, 0.5, 0.75))
-IQR(tabela_knn$Age)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+library(moments)
+
+# Obliczanie podstawowych statystyk
+quantiles <- quantile(tabela_knn$Age, probs = c(0.25, 0.5, 0.75))
+iqr_value <- IQR(tabela_knn$Age)
+age_range <- range(tabela_knn$Age)
+variance <- round(var(tabela_knn$Age), 2)  # Wariancja (zaokrąglona)
+std_dev <- round(sd(tabela_knn$Age), 2)  # Odchylenie standardowe (zaokrąglone)
+cv_age <- round((std_dev / mean(tabela_knn$Age)) * 100, 2)  # Współczynnik zmienności (%)
+
+# Skośność i kurtoza (zaokrąglone)
+skewness_value <- round(skewness(tabela_knn$Age), 2)
+kurtosis_value <- round(kurtosis(tabela_knn$Age), 2)
+
+# Średnia wieku
+mean_age <- round(mean(tabela_knn$Age), 2)
+
+# Przedziały zgodnie z regułą trzech sigm
+range_1sd <- paste0(round(mean_age - std_dev, 2), " - ", round(mean_age + std_dev, 2))
+range_2sd <- paste0(round(mean_age - 2*std_dev, 2), " - ", round(mean_age + 2*std_dev, 2))
+range_3sd <- paste0(round(mean_age - 3*std_dev, 2), " - ", round(mean_age + 3*std_dev, 2))
+
+# Tworzenie tabeli (wszystkie statystyki w jednej)
+data_frame <- data.frame(
+  Statystyka = c("1. kwartyl (Q1)", "Mediana (Q2)", "3. kwartyl (Q3)", 
+                 "Rozstęp międzykwartylowy (IQR)", "Zakres (min - max)", 
+                 "Wariancja", "Odchylenie standardowe", "Współczynnik zmienności (%)",
+                 "Skośność (Skewness)", "Kurtoza (Kurtosis)",
+                 "Średnia wieku", "Przedział (średnia ± 1σ)", 
+                 "Przedział (średnia ± 2σ)", "Przedział (średnia ± 3σ)"),
+  Wartość = c(quantiles[1], quantiles[2], quantiles[3], iqr_value, 
+              paste0(age_range[1], " - ", age_range[2]), variance, std_dev, cv_age,
+              skewness_value, kurtosis_value, mean_age, range_1sd, range_2sd, range_3sd)
+)
+
+# Generowanie tabeli HTML
+kable(data_frame, format = "html") %>%
+  kable_styling("striped", full_width = FALSE, bootstrap_options = c("hover", "condensed"))
 ```
 
 ### **Miary zróżnicowania**
@@ -632,7 +672,8 @@ odchylenie standardowe. Wyniki są następujące:
 -   dane są stosunkowo wysoko zróżnicowane względem ich średniej
     wartości
 
-```{r}
+```{r} 
+# ------------ w htmlu wyzej ------------
 range(tabela_knn$Age)
 var(tabela_knn$Age)
 sd(tabela_knn$Age)
@@ -648,7 +689,8 @@ skośność prawostronną oraz więcej młodszych pracowników. Kurtoza wieku
 wynosi 2,67, co oznacza, że rozkład wieku jest lekko spłaszczony, w
 porównaniu do normalnego.
 
-```{r}
+```{r} 
+# ------------ w htmlu wyzej ------------
 skewness(tabela_knn$Age)
 kurtosis(tabela_knn$Age)
 ```
@@ -665,6 +707,7 @@ W celu policzenia reguł empirycznych wybrano trzy wartości: 68%, 95% i
 -   99,7% mieści się w przedziale 10-64 lat
 
 ```{r}
+# ------------ w htmlu wyzej ------------
 mean_age <- mean(tabela_knn$Age)
 sd_age <- sd(tabela_knn$Age)
 c(mean_age - sd_age, mean_age + sd_age)
