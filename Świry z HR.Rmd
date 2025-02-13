@@ -101,6 +101,8 @@ obserwacji wśród wszystkich zmiennych.
 
 ```{r echo=TRUE}
 sum(is.na(tabela))
+
+datatable(tabela, options = list(pageLength = 5, autoWidth = TRUE))
 ```
 
 Aby dowiedzieć się szczegółów dotyczących braków zmiennych wykonano
@@ -482,26 +484,20 @@ można zauważyć następujące zależności:
     satysfakcją a lojalnością wobec firmy.
 
 ```{r}
-# Tworzenie zmiennej binarnej dla Attrition
 tabela_knn$Attrition_bin <- ifelse(tabela_knn$Attrition == "Yes", 1, 0)
 
-# Wybrane zmienne do analizy
 selected_vars <- tabela_knn[, c("Age", "MonthlyIncome", "JobSatisfaction", "YearsAtCompany", "Attrition_bin")]
 
-# Obliczenie macierzy korelacji
 cor_matrix <- cor(selected_vars, use = "complete.obs")
 
-# Zamiana macierzy korelacji na procenty
 cor_matrix_percent <- cor_matrix * 100
 
-# Przekształcenie macierzy do formatu długiego
 melted_cor_matrix <- melt(cor_matrix_percent)
 
-# Tworzenie heatmapy z wartościami procentowymi
 ggplot(data = melted_cor_matrix, aes(x = Var1, y = Var2, fill = value)) + 
   geom_tile(color = "white") +
   scale_fill_gradient2(low = "darkblue", high = "darkred", mid = "white", midpoint = 0, limit = c(-100, 100), space = "Lab", name="Korelacja (%)") +
-  geom_text(aes(label = sprintf("%.1f%%", value)), color = "black", size = 4) +  # Dodanie etykiet procentowych
+  geom_text(aes(label = sprintf("%.1f%%", value)), color = "black", size = 4) +  
   theme_minimal() + 
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
   coord_fixed()
@@ -520,31 +516,26 @@ ggplot(data = melted_cor_matrix, aes(x = Var1, y = Var2, fill = value)) +
     normę, mogą być bardziej skłonni do rezygnacji.
 
 ```{r}
-# Tworzenie zmiennej binarnej dla Attrition (1 = Yes, 0 = No)
 tabela_knn$Attrition_bin <- ifelse(tabela_knn$Attrition == "Yes", 1, 0)
 
-# 1. Rozkład odejść w zależności od płci (Gender)
 ggplot(tabela_knn, aes(x = Gender, fill = Attrition)) +
   geom_bar(position = "fill") +
   labs(title = "Rozkład odejść w zależności od płci", y = "Proporcja", x = "Płeć") +
   scale_fill_manual(values = c("No" = "lightblue", "Yes" = "darkred"), name = "Attrition") +
   theme_minimal()
 
-# 2. Rozkład odejść w zależności od stanu cywilnego (MaritalStatus)
 ggplot(tabela_knn, aes(x = MaritalStatus, fill = Attrition)) +
   geom_bar(position = "fill") +
   labs(title = "Rozkład odejść w zależności od stanu cywilnego", y = "Proporcja", x = "Stan cywilny") +
   scale_fill_manual(values = c("No" = "lightblue", "Yes" = "darkred"), name = "Attrition") +
   theme_minimal()
 
-# 3. Wpływ wynagrodzenia (MonthlyIncome) na odejścia
 ggplot(tabela_knn, aes(x = MonthlyIncome, fill = Attrition)) +
   geom_density(alpha = 0.5) +
   labs(title = "Wpływ wynagrodzenia na odejścia", x = "Miesięczne wynagrodzenie", y = "Gęstość") +
   scale_fill_manual(values = c("No" = "lightblue", "Yes" = "darkred"), name = "Attrition") +
   theme_minimal()
 
-# 4. Odejścia w zależności od liczby godzin pracy (OverTime)
 ggplot(tabela_knn, aes(x = OverTime, fill = Attrition)) +
   geom_bar(position = "fill") +
   labs(title = "Odejścia a nadgodziny", y = "Proporcja", x = "Nadgodziny") +
@@ -686,14 +677,16 @@ analizowanego zbioru. Ich wyniki są następujące:
 
 a.  **Test normlaności Shapiro-Wilka**
 
-służy do sprawdzenia normalności rozkładu danej zmiennej. Hipoteza
+Służy do sprawdzenia normalności rozkładu danej zmiennej. Hipoteza
 zerowa mówi, że dane pochodzą z rozkładu normalnego, względem
 alternatywy, że tak nie jest. Z racji, że wartość p-value jest niższa
 niż 0.01 odrzucamy hipotezę zerową na rzecz alternatywy. Oznacza to, że
 rozkład wieku nie jest normalny w obydwu badanych przypadkach zmiennych.
 
 b.  **Test t-studenta (dla Age względem Attrition)**
-wykorzystany w celu zbadania zależności pomiędzy wiekiem a odejściem z pracy.
+
+Wykorzystany w celu zbadania zależności pomiędzy wiekiem a odejściem z
+pracy.
 
 -   P-value jest ekstremalnie niskie (p < 0.05), więc istnieje istotna
     statystycznie różnica między średnimi wieku pracowników, którzy
@@ -706,7 +699,9 @@ wykorzystany w celu zbadania zależności pomiędzy wiekiem a odejściem z pracy
     potwierdza, że różnica między grupami jest statystycznie istotna.
 
 c.  **ANOVA**
-Zastosowana do sprawdzenia, czy istnieją istotne różnice w liczbie lat pracy między pracownikami różnych działów.
+
+Zastosowana do sprawdzenia, czy istnieją istotne różnice w liczbie lat
+pracy między pracownikami różnych działów.
 
 -   P-value = 0.83, co oznacza, że nie ma istotnych statystycznie różnic
     w liczbie lat pracy
@@ -715,8 +710,9 @@ Zastosowana do sprawdzenia, czy istnieją istotne różnice w liczbie lat pracy 
     działów są bardzo małe w porównaniu do zmienności wewnątrz grup.
     Przynależność do działu nie wpływa istotnie na liczbę lat pracy –
     staż pracowników jest podobny niezależnie od działu.
-    
-d. **Test chi-kwadrat**
+
+d.  **Test chi-kwadrat** 
+
 Zastosowany do zbadania, czy istnieje zależność między odejściem pracownika z firmy a poziomem wykształcenia.
 
 -   p-value = 0.314, co oznacza, że poziom wykształcenia nie ma
@@ -727,7 +723,8 @@ Zastosowany do zbadania, czy istnieje zależność między odejściem pracownika
 
 -   Wniosek: Wykształcenie nie wpływa istotnie na rotację pracowników.
 
-e. **Test chi-kwadrat 2**
+e.  **Test chi-kwadrat 2** 
+
 Został użyty do zbadania, czy istnieje zależność między odejściem pracownika z firmy a stanowiskiem.
 
 -   p-value < 0.05 co oznacza, że stanowisko ma bardzo duże znaczenie w
@@ -736,9 +733,10 @@ Został użyty do zbadania, czy istnieje zależność między odejściem pracown
 -   staystyka jest wysoka, co oznacza, że różnice między rzeczywistymi a
     oczekiwanymi wartościami są duże.
 
--   Wniosek: Odejścia są silnie zależne od stanowiska. Niektóre stanowiska mogą mieć znacznie większą rotację niż inne.
+-   Wniosek: Odejścia są silnie zależne od stanowiska. Niektóre
+    stanowiska mogą mieć znacznie większą rotację niż inne.
 
-f. **Test korelacji Pearsona**
+f.  **Test korelacji Pearsona**
 
 Zbadano korelację pomiędzy wiekiem a całkowitą liczbą lat pracy. Wysoka
 wartość statystyki wskazuje na silną zależność między zmiennymi. Bardzo
@@ -747,7 +745,7 @@ stanowiącą o braku korelacji pomiędzy wiekiem a całkowitą liczbą lat
 pracy. Całkiem wysoka wartość współczynnika oznacza, że im wyższy wiek,
 tym większa liczba lat przepracowanych.
 
-e. **Współczynnik Giniego**
+e.  **Współczynnik Giniego**
 
 Współczynnik Giniego mierzy nierówność rozkładu danej zmiennej – w tym
 przypadku wieku. Wiek w tej populacji jest stosunkowo równomiernie
@@ -800,6 +798,7 @@ kable(data_frame, format = "html", col.names = c("Test statystyczny", "Statystyk
   kable_styling("striped", full_width = FALSE, bootstrap_options = c("hover", "condensed"))
 
 ```
+
 ### **Regresja liniowa**
 
 Poniżej sformułowano regresję liniową, w której odejscia z pracy są
@@ -832,6 +831,7 @@ tabela_knn_num$OverTime <- as.numeric(as.factor(tabela_knn_num$OverTime)) - 1
 reg_model <- lm(Attrition ~ Age+MonthlyIncome+DistanceFromHome+JobSatisfaction+YearsAtCompany+OverTime+YearsSinceLastPromotion, data = tabela_knn_num)
 summary(reg_model)
 ```
+
 ### **Krzywa Lorenza**
 
 Krzywa Lorenza przedstawia nierówność rozkładu danej zmiennej – w tym
@@ -864,7 +864,7 @@ title = "Porównanie wieku między osobami, które odeszły i zostały", xlab
 
 Pracownicy, którzy pozostali w firmie, mają średni miesięczny dochód μ =
 6766.73, natomiast ci, którzy odeszli, μ = 4725.49. Test t (Welcha)
-wskazuje istotną różnicę (t = 7.23, p \< 0.001), co sugeruje, że osoby o
+wskazuje istotną różnicę (t = 7.23, p < 0.001), co sugeruje, że osoby o
 niższych dochodach częściej odchodzą. Rozkłady pokazują większą gęstość
 wyższych dochodów w grupie „No” oraz niższych w grupie „Yes”.
 
