@@ -59,6 +59,9 @@ library(ggstatsplot)
 library(ineq)
 library(corrplot)
 library(MASS)
+library(knitr)
+library(kableExtra)
+library(moments)
 ```
 
 # **Etap 1. Data cleansing**
@@ -597,69 +600,24 @@ Odchylenie_standardowe = round(sd(MonthlyIncome, na.rm = TRUE), 0))
 print(income_summary)
 ```
 
-### **Miary pozycyjne**
+### **Podstawowe statystyki**
 
-Wyniki przedstawiają kwartyle oraz rozstęp międzykwartylowy (IQR) dla
-wieku. Wynika z tego, że:
+Poniższa tabela przedstawia podstawowe statystyki dla analizowanego
+zbioru. Ich wyniki są następujące:
 
--    25% obserwacji ma wartość wieku mniejszą lub równą 30
+a.  **kwartyle oraz rozstęp międzykwartylowy (IQR) dla wieku:**
 
--    Połowa wartości wieku jest mniejsza lub równa 35
+-   25% obserwacji ma wartość wieku mniejszą lub równą 30
+
+-   Połowa wartości wieku jest mniejsza lub równa 35
 
 -   75% obserwacji ma wartość wieku mniejszą lub równą 43
 
 -   (30 - 43) rozstęp 13-stu lat, w którym znajduje się środkowe 50%
     danych
 
-
-```{r}
-library(dplyr)
-library(knitr)
-library(kableExtra)
-library(moments)
-
-# Obliczanie podstawowych statystyk
-quantiles <- quantile(tabela_knn$Age, probs = c(0.25, 0.5, 0.75))
-iqr_value <- IQR(tabela_knn$Age)
-age_range <- range(tabela_knn$Age)
-variance <- round(var(tabela_knn$Age), 2)  # Wariancja (zaokrąglona)
-std_dev <- round(sd(tabela_knn$Age), 2)  # Odchylenie standardowe (zaokrąglone)
-cv_age <- round((std_dev / mean(tabela_knn$Age)) * 100, 2)  # Współczynnik zmienności (%)
-
-# Skośność i kurtoza (zaokrąglone)
-skewness_value <- round(skewness(tabela_knn$Age), 2)
-kurtosis_value <- round(kurtosis(tabela_knn$Age), 2)
-
-# Średnia wieku
-mean_age <- round(mean(tabela_knn$Age), 2)
-
-# Przedziały zgodnie z regułą trzech sigm
-range_1sd <- paste0(round(mean_age - std_dev, 2), " - ", round(mean_age + std_dev, 2))
-range_2sd <- paste0(round(mean_age - 2*std_dev, 2), " - ", round(mean_age + 2*std_dev, 2))
-range_3sd <- paste0(round(mean_age - 3*std_dev, 2), " - ", round(mean_age + 3*std_dev, 2))
-
-# Tworzenie tabeli (wszystkie statystyki w jednej)
-data_frame <- data.frame(
-  Statystyka = c("1. kwartyl (Q1)", "Mediana (Q2)", "3. kwartyl (Q3)", 
-                 "Rozstęp międzykwartylowy (IQR)", "Zakres (min - max)", 
-                 "Wariancja", "Odchylenie standardowe", "Współczynnik zmienności (%)",
-                 "Skośność (Skewness)", "Kurtoza (Kurtosis)",
-                 "Średnia wieku", "Przedział (średnia ± 1σ)", 
-                 "Przedział (średnia ± 2σ)", "Przedział (średnia ± 3σ)"),
-  Wartość = c(quantiles[1], quantiles[2], quantiles[3], iqr_value, 
-              paste0(age_range[1], " - ", age_range[2]), variance, std_dev, cv_age,
-              skewness_value, kurtosis_value, mean_age, range_1sd, range_2sd, range_3sd)
-)
-
-# Generowanie tabeli HTML
-kable(data_frame, format = "html") %>%
-  kable_styling("striped", full_width = FALSE, bootstrap_options = c("hover", "condensed"))
-```
-
-### **Miary zróżnicowania**
-
-Policzono trzy miary zróżnicowania, kolejno: rozstęp, wariancję i
-odchylenie standardowe. Wyniki są następujące:
+b.  **miary zróżnicowania, kolejno: rozstęp, wariancję i odchylenie
+    standardowe:**
 
 -   Najmłodsza osoba w zbiorze danych ma 18 lat, a najstarsza 60 lat
     (zakres wieku to 42 lata)
@@ -672,33 +630,15 @@ odchylenie standardowe. Wyniki są następujące:
 -   dane są stosunkowo wysoko zróżnicowane względem ich średniej
     wartości
 
-```{r} 
-# ------------ w htmlu wyzej ------------
-range(tabela_knn$Age)
-var(tabela_knn$Age)
-sd(tabela_knn$Age)
-cv_age <- sd(tabela_knn$Age) / mean(tabela_knn$Age) * 100
-cv_age
-```
+c.  **rozkład danych:**
 
-### **Analiza rozkładu danych**
+-   Skośność wieku wynosi 0,46 - dodatnia wartość wskazuje na skośność
+    prawostronną oraz więcej młodszych pracowników
 
-Poniżej, obliczono wartość skośności oraz kurtozy, aby określić rozkład
-danych. Skośność wieku wynosi 0,46 - dodatnia wartość wskazuje na
-skośność prawostronną oraz więcej młodszych pracowników. Kurtoza wieku
-wynosi 2,67, co oznacza, że rozkład wieku jest lekko spłaszczony, w
-porównaniu do normalnego.
+-   Kurtoza wieku wynosi 2,67, co oznacza, że rozkład wieku jest lekko
+    spłaszczony, w porównaniu do normalnego
 
-```{r} 
-# ------------ w htmlu wyzej ------------
-skewness(tabela_knn$Age)
-kurtosis(tabela_knn$Age)
-```
-
-### **Reguła empiryczna**
-
-W celu policzenia reguł empirycznych wybrano trzy wartości: 68%, 95% i
-99,7% obserwacji. Oznacza to, że:
+d.  **reguły empiryczne:**
 
 -   68% pracowników mieści się w przedziale 27-46 lat
 
@@ -707,97 +647,66 @@ W celu policzenia reguł empirycznych wybrano trzy wartości: 68%, 95% i
 -   99,7% mieści się w przedziale 10-64 lat
 
 ```{r}
-# ------------ w htmlu wyzej ------------
-mean_age <- mean(tabela_knn$Age)
-sd_age <- sd(tabela_knn$Age)
-c(mean_age - sd_age, mean_age + sd_age)
-c(mean_age - 2*sd_age, mean_age + 2*sd_age)
-c(mean_age - 3*sd_age, mean_age + 3*sd_age)
-```
+quantiles <- quantile(tabela_knn$Age, probs = c(0.25, 0.5, 0.75))
+iqr_value <- IQR(tabela_knn$Age)
+age_range <- range(tabela_knn$Age)
+variance <- round(var(tabela_knn$Age), 2)
+std_dev <- round(sd(tabela_knn$Age), 2)
+cv_age <- round((std_dev / mean(tabela_knn$Age)) * 100, 2)
 
-### **Testy normalności**
+skewness_value <- round(skewness(tabela_knn$Age), 2)
+kurtosis_value <- round(kurtosis(tabela_knn$Age), 2)
 
-Test Shapiro-Wilka służy do sprawdzenia normalności rozkładu danej
-zmiennej. Hipoteza zerowa mówi, że dane pochodzą z rozkładu normalnego,
-względem alternatywy, że tak nie jest. Z racji, że wartość p-value jest
-niższa niż 0.01 odrzucamy hipotezę zerową na rzecz alternatywy. Oznacza
-to, że rozkład wieku nie jest normalny w obydwu badanych przypadkach
-zmiennych.
+mean_age <- round(mean(tabela_knn$Age), 2)
 
-```{r}
-# Testy normalności (Shapiro-Wilka)
-shapiro_age <- shapiro.test(tabela_knn$Age)
-shapiro_workyears <- shapiro.test(tabela_knn$TotalWorkingYears)
+range_1sd <- paste0(round(mean_age - std_dev, 2), " - ", round(mean_age + std_dev, 2))
+range_2sd <- paste0(round(mean_age - 2*std_dev, 2), " - ", round(mean_age + 2*std_dev, 2))
+range_3sd <- paste0(round(mean_age - 3*std_dev, 2), " - ", round(mean_age + 3*std_dev, 2))
 
-# Test t-studenta (dla Age względem Attrition)
-t_test_age <- t.test(Age ~ Attrition, data = tabela_knn)
-
-# Analiza wariancji (ANOVA)
-anova_model <- aov(TotalWorkingYears ~ Department, data = tabela_knn)
-anova_summary <- summary(anova_model)
-
-# Testy chi-kwadrat (dla zmiennych kategorycznych)
-chi_attrition_edu <- chisq.test(table(tabela_knn$Attrition, tabela_knn$Education))
-chi_attrition_job <- chisq.test(table(tabela_knn$Attrition, tabela_knn$JobRole))
-
-# Korelacja między Age a TotalWorkingYears
-correlation_test <- cor.test(tabela_knn$Age, tabela_knn$TotalWorkingYears)
-
-# Tworzenie tabeli podsumowującej wyniki testów statystycznych
 data_frame <- data.frame(
-  Test = c("Shapiro-Wilk (Age)", "Shapiro-Wilk (TotalWorkingYears)", 
-           "Test t-studenta (Age ~ Attrition)", "95% CI (t-test)", "Średnia w grupie 'No'", "Średnia w grupie 'Yes'",
-           "ANOVA (TotalWorkingYears ~ Department)", "Stopnie swobody ANOVA",
-           "Chi-kwadrat (Attrition ~ Education)", "Chi-kwadrat (Attrition ~ JobRole)",
-           "Korelacja (Age ~ TotalWorkingYears)", "95% CI (korelacja)"),
-  
-  Statystyka = c(round(shapiro_age$statistic, 3), round(shapiro_workyears$statistic, 3),
-                 round(t_test_age$statistic, 3), paste0("[", round(t_test_age$conf.int[1], 3), ", ", round(t_test_age$conf.int[2], 3), "]"),
-                 round(t_test_age$estimate[1], 3), round(t_test_age$estimate[2], 3),
-                 round(anova_summary[[1]]$F[1], 3), paste0(anova_summary[[1]]$Df[1], " / ", anova_summary[[1]]$Df[2]),
-                 round(chi_attrition_edu$statistic, 3), round(chi_attrition_job$statistic, 3),
-                 round(correlation_test$estimate, 3), paste0("[", round(correlation_test$conf.int[1], 3), ", ", round(correlation_test$conf.int[2], 3), "]")),
-  
-  p_wartosc = c(formatC(shapiro_age$p.value, format="e", digits=6), 
-                formatC(shapiro_workyears$p.value, format="e", digits=6),
-                formatC(t_test_age$p.value, format="e", digits=6), "-",
-                "-", "-", 
-                formatC(anova_summary[[1]]$`Pr(>F)`[1], format="e", digits=6), "-",
-                formatC(chi_attrition_edu$p.value, format="e", digits=6),
-                formatC(chi_attrition_job$p.value, format="e", digits=6),
-                formatC(correlation_test$p.value, format="e", digits=6), "-")
+  Statystyka = c("1. kwartyl (Q1)", "Mediana (Q2)", "3. kwartyl (Q3)", 
+                 "Rozstęp międzykwartylowy (IQR)", "Zakres (min - max)", 
+                 "Wariancja", "Odchylenie standardowe", "Współczynnik zmienności (%)",
+                 "Skośność (Skewness)", "Kurtoza (Kurtosis)",
+                 "Średnia wieku", "Przedział (średnia ± 1σ)", 
+                 "Przedział (średnia ± 2σ)", "Przedział (średnia ± 3σ)"),
+  Wartość = c(quantiles[1], quantiles[2], quantiles[3], iqr_value, 
+              paste0(age_range[1], " - ", age_range[2]), variance, std_dev, cv_age,
+              skewness_value, kurtosis_value, mean_age, range_1sd, range_2sd, range_3sd)
 )
 
-# Generowanie tabeli HTML
-kable(data_frame, format = "html", col.names = c("Test statystyczny", "Statystyka", "p-wartość")) %>%
+kable(data_frame, format = "html") %>%
   kable_styling("striped", full_width = FALSE, bootstrap_options = c("hover", "condensed"))
 ```
 
-### **Test t-Studenta**
+### **Testy**
 
-Zastosowano test t-Studenta, aby porównać średni wiek pracowników,
-którzy zostali w firmie z tymi, którzy odeszli. Wyniki są następujące:
+Poniższa tabela przedstawia różne rodzaje testów statystycznych dla
+analizowanego zbioru. Ich wyniki są następujące:
 
--   P-value jest ekstremalnie niskie (p \< 0.05), więc istnieje istotna
+a.  **Test normlaności Shapiro-Wilka**
+
+służy do sprawdzenia normalności rozkładu danej zmiennej. Hipoteza
+zerowa mówi, że dane pochodzą z rozkładu normalnego, względem
+alternatywy, że tak nie jest. Z racji, że wartość p-value jest niższa
+niż 0.01 odrzucamy hipotezę zerową na rzecz alternatywy. Oznacza to, że
+rozkład wieku nie jest normalny w obydwu badanych przypadkach zmiennych.
+
+b.  **Test t-studenta (dla Age względem Attrition)**
+wykorzystany w celu zbadania zależności pomiędzy wiekiem a odejściem z pracy.
+
+-   P-value jest ekstremalnie niskie (p < 0.05), więc istnieje istotna
     statystycznie różnica między średnimi wieku pracowników, którzy
     zostali, a tych, którzy odeszli.
 
 -   Średnia wieku pracowników, którzy pozostali w firmie, wynosi 37.50
-    lat, podczas gdy średnia wieku osób, które odeszły, to 33.33 lat.
+    lat, podczas gdy średnia wieku osób, które odeszły, to 33,33 lat.
 
 -   Przedział ufności (2.83 – 5.51) nie obejmuje zera, co dodatkowo
     potwierdza, że różnica między grupami jest statystycznie istotna.
 
-```{r}
-# ------------ w htmlu wyzej ------------
-t.test(Age ~ Attrition, data = tabela_knn)
-```
-
-### **ANOVA**
-
-Analiza wariancji została zastosowana do sprawdzenia, czy istnieją
-istotne różnice w liczbie lat pracy między pracownikami różnych działów.
-Wnioski są następujące:
+c.  **ANOVA**
+Zastosowana do sprawdzenia, czy istnieją istotne różnice w liczbie lat pracy między pracownikami różnych działów.
 
 -   P-value = 0.83, co oznacza, że nie ma istotnych statystycznie różnic
     w liczbie lat pracy
@@ -806,18 +715,9 @@ Wnioski są następujące:
     działów są bardzo małe w porównaniu do zmienności wewnątrz grup.
     Przynależność do działu nie wpływa istotnie na liczbę lat pracy –
     staż pracowników jest podobny niezależnie od działu.
-
-```{r}
-# ------------ w htmlu wyzej ------------
-anova_model <- aov(TotalWorkingYears ~ Department, data = tabela_knn)
-summary(anova_model)
-```
-
-### **Test chi-kwadrat**
-
-Test Chi-kwadrat został użyty do zbadania, czy istnieje zależność między
-odejściem pracownika z firmy a poziomem wykształcenia. Wnioski są
-następujące:
+    
+d. **Test chi-kwadrat**
+Zastosowany do zbadania, czy istnieje zależność między odejściem pracownika z firmy a poziomem wykształcenia.
 
 -   p-value = 0.314, co oznacza, że poziom wykształcenia nie ma
     istotnego wpływu na decyzję o odejściu z firmy.
@@ -825,33 +725,20 @@ następujące:
 -   staystyka jest niska, co oznacza, że różnice między rzeczywistymi a
     oczekiwanymi wartościami są niewielkie.
 
-    Wniosek: Wykształcenie nie wpływa istotnie na rotację pracowników.
+-   Wniosek: Wykształcenie nie wpływa istotnie na rotację pracowników.
 
-```{r}
-# ------------ w htmlu wyzej ------------
-chisq.test(table(tabela_knn$Attrition, tabela_knn$Education))
-```
+e. **Test chi-kwadrat 2**
+Został użyty do zbadania, czy istnieje zależność między odejściem pracownika z firmy a stanowiskiem.
 
-### **Test chi-kwadrat 2**
-
-Test Chi-kwadrat został użyty do zbadania, czy istnieje zależność między
-odejściem pracownika z firmy a stanowiskiem. Wnioski są następujące:
-
--   p-value \< 0.05 co oznacza, że stanowisko ma bardzo duże znaczenie w
+-   p-value < 0.05 co oznacza, że stanowisko ma bardzo duże znaczenie w
     kontekście odejść z pracy
 
 -   staystyka jest wysoka, co oznacza, że różnice między rzeczywistymi a
     oczekiwanymi wartościami są duże.
 
-Wniosek: Odejścia są silnie zależne od stanowiska. Niektóre stanowiska
-mogą mieć znacznie większą rotację niż inne.
+-   Wniosek: Odejścia są silnie zależne od stanowiska. Niektóre stanowiska mogą mieć znacznie większą rotację niż inne.
 
-```{r}
-# ------------ w htmlu wyzej ------------
-chisq.test(table(tabela_knn$Attrition, tabela_knn$JobRole))
-```
-
-### **Test korelacji Pearsona**
+f. **Test korelacji Pearsona**
 
 Zbadano korelację pomiędzy wiekiem a całkowitą liczbą lat pracy. Wysoka
 wartość statystyki wskazuje na silną zależność między zmiennymi. Bardzo
@@ -860,11 +747,59 @@ stanowiącą o braku korelacji pomiędzy wiekiem a całkowitą liczbą lat
 pracy. Całkiem wysoka wartość współczynnika oznacza, że im wyższy wiek,
 tym większa liczba lat przepracowanych.
 
-```{r}
-# ------------ w htmlu wyzej ------------
-cor.test(tabela_knn$Age, tabela_knn$TotalWorkingYears)
-```
+e. **Współczynnik Giniego**
 
+Współczynnik Giniego mierzy nierówność rozkładu danej zmiennej – w tym
+przypadku wieku. Wiek w tej populacji jest stosunkowo równomiernie
+rozłożony, z niewielkimi różnicami między wartościami.
+
+```{r}
+shapiro_age <- shapiro.test(tabela_knn$Age)
+shapiro_workyears <- shapiro.test(tabela_knn$TotalWorkingYears)
+
+t_test_age <- t.test(Age ~ Attrition, data = tabela_knn)
+
+anova_model <- aov(TotalWorkingYears ~ Department, data = tabela_knn)
+anova_summary <- summary(anova_model)
+
+chi_attrition_edu <- chisq.test(table(tabela_knn$Attrition, tabela_knn$Education))
+chi_attrition_job <- chisq.test(table(tabela_knn$Attrition, tabela_knn$JobRole))
+
+correlation_test <- cor.test(tabela_knn$Age, tabela_knn$TotalWorkingYears)
+
+gini_coefficient <- Gini(tabela_knn$Age)
+
+data_frame <- data.frame(
+  Test = c("Shapiro-Wilk (Age)", "Shapiro-Wilk (TotalWorkingYears)", 
+           "Test t-studenta (Age ~ Attrition)", "95% CI (t-test)", "Średnia w grupie 'No'", "Średnia w grupie 'Yes'",
+           "ANOVA (TotalWorkingYears ~ Department)", "Stopnie swobody ANOVA",
+           "Chi-kwadrat (Attrition ~ Education)", "Chi-kwadrat (Attrition ~ JobRole)",
+           "Korelacja (Age ~ TotalWorkingYears)", "95% CI (korelacja)",
+           "Współczynnik Giniego (Age)"),
+  
+  Statystyka = c(round(shapiro_age$statistic, 3), round(shapiro_workyears$statistic, 3),
+                 round(t_test_age$statistic, 3), paste0("[", round(t_test_age$conf.int[1], 3), ", ", round(t_test_age$conf.int[2], 3), "]"),
+                 round(t_test_age$estimate[1], 3), round(t_test_age$estimate[2], 3),
+                 round(anova_summary[[1]]$F[1], 3), paste0(anova_summary[[1]]$Df[1], " / ", anova_summary[[1]]$Df[2]),
+                 round(chi_attrition_edu$statistic, 3), round(chi_attrition_job$statistic, 3),
+                 round(correlation_test$estimate, 3), paste0("[", round(correlation_test$conf.int[1], 3), ", ", round(correlation_test$conf.int[2], 3), "]"),
+                 round(gini_coefficient, 3)),
+  
+  p_wartosc = c(formatC(shapiro_age$p.value, format="e", digits=6), 
+                formatC(shapiro_workyears$p.value, format="e", digits=6),
+                formatC(t_test_age$p.value, format="e", digits=6), "-",
+                "-", "-", 
+                formatC(anova_summary[[1]]$`Pr(>F)`[1], format="e", digits=6), "-",
+                formatC(chi_attrition_edu$p.value, format="e", digits=6),
+                formatC(chi_attrition_job$p.value, format="e", digits=6),
+                formatC(correlation_test$p.value, format="e", digits=6), "-",
+                "-")
+)
+
+kable(data_frame, format = "html", col.names = c("Test statystyczny", "Statystyka", "p-wartość")) %>%
+  kable_styling("striped", full_width = FALSE, bootstrap_options = c("hover", "condensed"))
+
+```
 ### **Regresja liniowa**
 
 Poniżej sformułowano regresję liniową, w której odejscia z pracy są
@@ -897,18 +832,6 @@ tabela_knn_num$OverTime <- as.numeric(as.factor(tabela_knn_num$OverTime)) - 1
 reg_model <- lm(Attrition ~ Age+MonthlyIncome+DistanceFromHome+JobSatisfaction+YearsAtCompany+OverTime+YearsSinceLastPromotion, data = tabela_knn_num)
 summary(reg_model)
 ```
-
-### **Współczynnik Giniego**
-
-Współczynnik Giniego mierzy nierówność rozkładu danej zmiennej – w tym
-przypadku wieku. Wiek w tej populacji jest stosunkowo równomiernie
-rozłożony, z niewielkimi różnicami między wartościami.
-
-```{r}
-gini_coefficient <- Gini(tabela_knn$Age)
-gini_coefficient
-```
-
 ### **Krzywa Lorenza**
 
 Krzywa Lorenza przedstawia nierówność rozkładu danej zmiennej – w tym
