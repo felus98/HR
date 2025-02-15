@@ -674,25 +674,33 @@ kable(data_frame, format = "html") %>%
 
 ### **Wwykres pudełkowy wieku**
 
-Wykres został stworzony na bazie powyższej tabeli z wartościwami podstawowych statystyk.
+Wykres został stworzony na bazie powyższej tabeli z wartościwami
+podstawowych statystyk.
 
--   Średnia i mediana są blisko siebie – oznacza to, że rozkład wieku jest dość symetryczny, bez silnej skośności.
+-   Średnia i mediana są blisko siebie – oznacza to, że rozkład wieku
+    jest dość symetryczny, bez silnej skośności.
 
--   Kilka wartości odstających znajduje się zarówno poniżej, jak i powyżej typowego zakresu wieku, co oznacza, że w próbie mogą być jednostki znacznie młodsze lub starsze niż większość.
+-   Kilka wartości odstających znajduje się zarówno poniżej, jak i
+    powyżej typowego zakresu wieku, co oznacza, że w próbie mogą być
+    jednostki znacznie młodsze lub starsze niż większość.
 
--   Większość danych mieści się w zakresie pudełka (IQR) – sugeruje to, że wiek większości badanych osób nie wykazuje ekstremalnej zmienności.
+-   Większość danych mieści się w zakresie pudełka (IQR) – sugeruje to,
+    że wiek większości badanych osób nie wykazuje ekstremalnej
+    zmienności.
 
--   Najwięcej punktów skupia się wokół mediany i wewnątrz pudełka, co potwierdza, że większość wartości jest w standardowym zakresie.
+-   Najwięcej punktów skupia się wokół mediany i wewnątrz pudełka, co
+    potwierdza, że większość wartości jest w standardowym zakresie.
 
 ```{r}
 set.seed(42)
-tabela_knn <- data.frame(Age = rnorm(300, mean = 35, sd = 10))
- 
-quantiles <- quantile(tabela_knn$Age, probs = c(0.25, 0.5, 0.75))
-mean_age <- mean(tabela_knn$Age)
- 
-ggplot(tabela_knn, aes(x = "", y = Age)) +
-  geom_boxplot(fill = "lightblue", color = "black", outlier.color = "red", outlier.shape = 16, outlier.size = 3, linewidth = 1) +
+tabela_wykres <- data.frame(Age = rnorm(300, mean = 35, sd = 10))
+
+quantiles <- quantile(tabela_wykres$Age, probs = c(0.25, 0.5, 0.75))
+mean_age <- mean(tabela_wykres$Age)
+
+ggplot(tabela_wykres, aes(x = "", y = Age)) +
+  geom_boxplot(fill = "lightblue", color = "black", outlier.color = "red", 
+               outlier.shape = 16, outlier.size = 3, linewidth = 1) +
   geom_jitter(aes(x = ""), color = "darkblue", alpha = 0.5, width = 0.2, size = 2) +
   geom_hline(yintercept = quantiles[1], linetype = "dashed", color = "red", linewidth = 1) +
   geom_hline(yintercept = quantiles[2], linetype = "dashed", color = "green", linewidth = 1) +
@@ -704,6 +712,7 @@ ggplot(tabela_knn, aes(x = "", y = Age)) +
        y = "Wiek") +
   theme_minimal()
 ```
+
 ### **Testy**
 
 Poniższa tabela przedstawia różne rodzaje testów statystycznych dla
@@ -722,7 +731,7 @@ b.  **Test t-studenta (dla Age względem Attrition)**
 Wykorzystany w celu zbadania zależności pomiędzy wiekiem a odejściem z
 pracy.
 
--   P-value jest ekstremalnie niskie (p < 0.05), więc istnieje istotna
+-   P-value jest ekstremalnie niskie (p \< 0.05), więc istnieje istotna
     statystycznie różnica między średnimi wieku pracowników, którzy
     zostali, a tych, którzy odeszli.
 
@@ -763,7 +772,7 @@ e.  **Test chi-kwadrat 2**
 Został użyty do zbadania, czy istnieje zależność między odejściem
 pracownika z firmy a stanowiskiem.
 
--   p-value < 0,05 co oznacza, że stanowisko ma bardzo duże znaczenie w
+-   p-value \< 0,05 co oznacza, że stanowisko ma bardzo duże znaczenie w
     kontekście odejść z pracy
 
 -   staystyka jest wysoka, co oznacza, że różnice między rzeczywistymi a
