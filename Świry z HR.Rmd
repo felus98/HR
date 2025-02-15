@@ -101,7 +101,7 @@ obserwacji wśród wszystkich zmiennych.
 
 ```{r echo=TRUE}
 sum(is.na(tabela))
-
+ 
 datatable(tabela, options = list(pageLength = 5, autoWidth = TRUE))
 ```
 
@@ -608,17 +608,17 @@ a.  **kwartyle oraz rozstęp międzykwartylowy (IQR) dla wieku:**
     danych
 
 b.  **miary zróżnicowania, kolejno: rozstęp, wariancję i odchylenie
-    standardowe:**
+    standardowe**
 
 -   Najmłodsza osoba w zbiorze danych ma 18 lat, a najstarsza 60 lat
     (zakres wieku to 42 lata)
 
--   wysoka wartość wariancji sugeruje, że wartości są rozproszone i
+-   Wysoka wartość wariancji sugeruje, że wartości są rozproszone i
     zróżnicowanie
 
--   przeciętnie, wartości wieku różnią się od średniej o prawie 9 lat
+-   Przeciętnie, wartości wieku różnią się od średniej o prawie 9 lat
 
--   dane są stosunkowo wysoko zróżnicowane względem ich średniej
+-   Dane są stosunkowo wysoko zróżnicowane względem ich średniej
     wartości
 
 c.  **rozkład danych:**
@@ -670,6 +670,38 @@ kable(data_frame, format = "html") %>%
   kable_styling("striped", full_width = FALSE, bootstrap_options = c("hover", "condensed"))
 ```
 
+### **Wwykres pudełkowy wieku**
+
+Wykres został stworzony na bazie powyższej tabeli z wartościwami podstawowych statystyk.
+
+-   Średnia i mediana są blisko siebie – oznacza to, że rozkład wieku jest dość symetryczny, bez silnej skośności.
+
+-   Kilka wartości odstających znajduje się zarówno poniżej, jak i powyżej typowego zakresu wieku, co oznacza, że w próbie mogą być jednostki znacznie młodsze lub starsze niż większość.
+
+-   Większość danych mieści się w zakresie pudełka (IQR) – sugeruje to, że wiek większości badanych osób nie wykazuje ekstremalnej zmienności.
+
+-   Najwięcej punktów skupia się wokół mediany i wewnątrz pudełka, co potwierdza, że większość wartości jest w standardowym zakresie.
+
+```{r}
+set.seed(42)
+tabela_knn <- data.frame(Age = rnorm(300, mean = 35, sd = 10))
+ 
+quantiles <- quantile(tabela_knn$Age, probs = c(0.25, 0.5, 0.75))
+mean_age <- mean(tabela_knn$Age)
+ 
+ggplot(tabela_knn, aes(x = "", y = Age)) +
+  geom_boxplot(fill = "lightblue", color = "black", outlier.color = "red", outlier.shape = 16, outlier.size = 3, linewidth = 1) +
+  geom_jitter(aes(x = ""), color = "darkblue", alpha = 0.5, width = 0.2, size = 2) +
+  geom_hline(yintercept = quantiles[1], linetype = "dashed", color = "red", linewidth = 1) +
+  geom_hline(yintercept = quantiles[2], linetype = "dashed", color = "green", linewidth = 1) +
+  geom_hline(yintercept = quantiles[3], linetype = "dashed", color = "blue", linewidth = 1) +
+  geom_hline(yintercept = mean_age, linetype = "solid", color = "orange", linewidth = 1.2) +
+  labs(title = "Wykres pudełkowy wieku",
+       subtitle = "Boxplot + punkty indywidualne + linie kwartylowe i średnia",
+       x = "",
+       y = "Wiek") +
+  theme_minimal()
+```
 ### **Testy**
 
 Poniższa tabela przedstawia różne rodzaje testów statystycznych dla
@@ -695,7 +727,7 @@ pracy.
 -   Średnia wieku pracowników, którzy pozostali w firmie, wynosi 37.50
     lat, podczas gdy średnia wieku osób, które odeszły, to 33,33 lat.
 
--   Przedział ufności (2.83 – 5.51) nie obejmuje zera, co dodatkowo
+-   Przedział ufności (2,83 – 5,51) nie obejmuje zera, co dodatkowo
     potwierdza, że różnica między grupami jest statystycznie istotna.
 
 c.  **ANOVA**
@@ -703,19 +735,20 @@ c.  **ANOVA**
 Zastosowana do sprawdzenia, czy istnieją istotne różnice w liczbie lat
 pracy między pracownikami różnych działów.
 
--   P-value = 0.83, co oznacza, że nie ma istotnych statystycznie różnic
+-   P-value = 0,83, co oznacza, że nie ma istotnych statystycznie różnic
     w liczbie lat pracy
 
--   Niska wartość F (0.18) sugeruje, że różnice między średnimi dla
+-   Niska wartość F (0,18) sugeruje, że różnice między średnimi dla
     działów są bardzo małe w porównaniu do zmienności wewnątrz grup.
     Przynależność do działu nie wpływa istotnie na liczbę lat pracy –
     staż pracowników jest podobny niezależnie od działu.
 
-d.  **Test chi-kwadrat** 
+d.  **Test chi-kwadrat**
 
-Zastosowany do zbadania, czy istnieje zależność między odejściem pracownika z firmy a poziomem wykształcenia.
+Zastosowany do zbadania, czy istnieje zależność między odejściem
+pracownika z firmy a poziomem wykształcenia.
 
--   p-value = 0.314, co oznacza, że poziom wykształcenia nie ma
+-   p-value = 0,314, co oznacza, że poziom wykształcenia nie ma
     istotnego wpływu na decyzję o odejściu z firmy.
 
 -   staystyka jest niska, co oznacza, że różnice między rzeczywistymi a
@@ -723,11 +756,12 @@ Zastosowany do zbadania, czy istnieje zależność między odejściem pracownika
 
 -   Wniosek: Wykształcenie nie wpływa istotnie na rotację pracowników.
 
-e.  **Test chi-kwadrat 2** 
+e.  **Test chi-kwadrat 2**
 
-Został użyty do zbadania, czy istnieje zależność między odejściem pracownika z firmy a stanowiskiem.
+Został użyty do zbadania, czy istnieje zależność między odejściem
+pracownika z firmy a stanowiskiem.
 
--   p-value < 0.05 co oznacza, że stanowisko ma bardzo duże znaczenie w
+-   p-value < 0,05 co oznacza, że stanowisko ma bardzo duże znaczenie w
     kontekście odejść z pracy
 
 -   staystyka jest wysoka, co oznacza, że różnice między rzeczywistymi a
@@ -864,7 +898,7 @@ title = "Porównanie wieku między osobami, które odeszły i zostały", xlab
 
 Pracownicy, którzy pozostali w firmie, mają średni miesięczny dochód μ =
 6766.73, natomiast ci, którzy odeszli, μ = 4725.49. Test t (Welcha)
-wskazuje istotną różnicę (t = 7.23, p < 0.001), co sugeruje, że osoby o
+wskazuje istotną różnicę (t = 7.23, p \< 0.001), co sugeruje, że osoby o
 niższych dochodach częściej odchodzą. Rozkłady pokazują większą gęstość
 wyższych dochodów w grupie „No” oraz niższych w grupie „Yes”.
 
