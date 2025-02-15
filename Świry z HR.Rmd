@@ -62,6 +62,8 @@ library(MASS)
 library(knitr)
 library(kableExtra)
 library(moments)
+library(DT)
+library(ROCR)
 ```
 
 # **Etap 1. Data cleansing**
